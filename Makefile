@@ -9,7 +9,8 @@ OBJ_DIR		= object/
 
 CC			= c++
 
-CFLAGS		= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++98
+# CFLAGS		= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17
+CFLAGS		= -std=c++17
 
 # **************************************************************************** #
 #                                                                              #
@@ -19,10 +20,10 @@ CFLAGS		= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++98
 #                                                                              #
 # **************************************************************************** #
 
-I_HEADERS	= -I $(INC_DIR) -I $(VULKAN_SDK)/include
+I_HEADERS	= -I $(INC_DIR) -I $(VULKAN_SDK)/include -I ./library/glfw-3.4/include -I ./Library/glm-master
 
-LDFLAGS		= -L $(VULKAN_SDK)/lib
-LDLIBS		= -l vulkan
+LDFLAGS		= -L $(VULKAN_SDK)/lib -L ./library/glfw-3.4/build/src
+LDLIBS		= -l vulkan -l glfw3 -framework Cocoa -framework IOKit -framework CoreVideo -framework CoreFoundation
 
 HEADERS		= $(shell find $(INC_DIR) -type f -name '*.hpp')
 
