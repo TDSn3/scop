@@ -3,6 +3,8 @@ Basic GPU rendering with Vulkan.
 
 # Usage
 
+### MacOS
+
 GLFW configuration :
 
 ``` shell
