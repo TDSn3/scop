@@ -1,3 +1,6 @@
+include .env
+export
+
 NAME		= scop
 
 INC_DIR		= include/
@@ -16,10 +19,10 @@ CFLAGS		= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++98
 #                                                                              #
 # **************************************************************************** #
 
-I_HEADERS	= -I $(INC_DIR)
+I_HEADERS	= -I $(INC_DIR) -I $(VULKAN_SDK)/include
 
-# LDFLAGS		= -L mlx_linux -L libft
-# LDLIBS		= -l ft -l mlx_Linux -l Xext -l X11 -l m -l z -l pthread -p thread
+LDFLAGS		= -L $(VULKAN_SDK)/lib
+LDLIBS		= -l vulkan
 
 HEADERS		= $(shell find $(INC_DIR) -type f -name '*.hpp')
 
@@ -51,7 +54,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(OBJ) $(I_HEADERS) -o $(NAME)
+	$(CC) $(OBJ) $(I_HEADERS) $(LDFLAGS) $(LDLIBS) -o $(NAME) -Wl,-rpath,$(VULKAN_SDK)/lib
 
 clean:
 	rm -rf $(OBJ_DIR)
