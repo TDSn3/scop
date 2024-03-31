@@ -12,6 +12,7 @@ mkdir ./library/glfw-3.4/build
 cd ./library/glfw-3.4/build
 cmake -DBUILD_SHARED_LIBS=OFF ..
 make
+cd ../../..
 ```
 
 # Utils
