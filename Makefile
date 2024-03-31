@@ -20,10 +20,21 @@ CFLAGS		= -std=c++17
 #                                                                              #
 # **************************************************************************** #
 
-I_HEADERS	= -I $(INC_DIR) -I $(VULKAN_SDK)/include -I ./library/glfw-3.4/include -I ./Library/glm-master
+I_HEADERS	= -I $(INC_DIR)					\
+			  -I $(VULKAN_SDK)/include		\
+			  -I ./library/glfw-3.4/include	\
+			  -I ./library/glm-master
 
-LDFLAGS		= -L $(VULKAN_SDK)/lib -L ./library/glfw-3.4/build/src
-LDLIBS		= -l vulkan -l glfw3 -framework Cocoa -framework IOKit -framework CoreVideo -framework CoreFoundation
+LDFLAGS		= -L $(VULKAN_SDK)/lib				\
+			  -L ./library/glfw-3.4/build/src	\
+			  -Wl,-rpath,$(VULKAN_SDK)/lib
+
+LDLIBS		= -l vulkan					\
+			  -l glfw3					\
+			  -framework Cocoa			\
+			  -framework IOKit			\
+			  -framework CoreVideo		\
+			  -framework CoreFoundation
 
 HEADERS		= $(shell find $(INC_DIR) -type f -name '*.hpp')
 
@@ -55,7 +66,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(OBJ) $(I_HEADERS) $(LDFLAGS) $(LDLIBS) -o $(NAME) -Wl,-rpath,$(VULKAN_SDK)/lib
+	$(CC) $(OBJ) $(I_HEADERS) $(LDFLAGS) $(LDLIBS) -o $(NAME)
 
 clean:
 	rm -rf $(OBJ_DIR)
