@@ -20,6 +20,7 @@ void HelloTriangleApplication::initVulkan() {
     createVulkanInstance();
     setupDebugMessenger();
     pickPhysicalDevice();
+    createLogicalDevice();
 }
 
 void HelloTriangleApplication::mainLoop() {
@@ -27,6 +28,7 @@ void HelloTriangleApplication::mainLoop() {
 }
 
 void HelloTriangleApplication::cleanup() {
+    vkDestroyDevice(_device, nullptr);
     DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
     vkDestroyInstance(_instance, nullptr);
     glfwDestroyWindow(_window);
@@ -66,7 +68,7 @@ void HelloTriangleApplication::createVulkanInstance () {
 
     vector<const char *> glfwExtensions = getRequiredGlfwExtensions();
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(glfwExtensions.size());;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(glfwExtensions.size());
     createInfo.ppEnabledExtensionNames = glfwExtensions.data();
 
     printAvailableVulkanExtension();
@@ -151,6 +153,7 @@ vector<const char *> HelloTriangleApplication::getRequiredGlfwExtensions() {
 
     #ifdef __APPLE__
         glfwExtensionsExtend.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+        glfwExtensionsExtend.push_back("VK_KHR_get_physical_device_properties2");
     #endif
 
     glfwExtensionsExtend.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -271,6 +274,77 @@ void HelloTriangleApplication::printQueueFamilies(VkPhysicalDevice device) {
     }    
 }
 
+void HelloTriangleApplication::createLogicalDevice() {
+    VkDeviceCreateInfo createInfo{};
+
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+    VkDeviceQueueCreateInfo queueCreateInfo{};
+
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+
+    QueueFamilyIndices indices = findQueueFamilies(_physicalDevice, VK_QUEUE_GRAPHICS_BIT);
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+
+    queueCreateInfo.queueCount = 1;
+
+    float queuePriority = 1.0f;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    createInfo.queueCreateInfoCount = 1;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+
+    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+    createInfo.ppEnabledLayerNames = validationLayers.data();
+
+    printSupportedPhysicalDeviceExtensions();
+
+    vector<const char *> logicalDeviceExtensions = getRequiredLogicalDeviceExtensions();
+    
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(logicalDeviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = logicalDeviceExtensions.data();
+
+    VkPhysicalDeviceFeatures deviceFeatures{};
+
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    VkResult result = vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device);
+
+    if (result != VK_SUCCESS)
+        throw runtime_error("failed to create logical device!");
+    
+    vkGetDeviceQueue(_device, indices.graphicsFamily.value(), 0, &_graphicsQueue);
+}
+
+vector<const char *> HelloTriangleApplication::getRequiredLogicalDeviceExtensions() {
+    vector<const char *> logicalDeviceExtensions;
+
+    #ifdef __APPLE__
+        logicalDeviceExtensions.push_back("VK_KHR_portability_subset");
+    #endif
+
+    return logicalDeviceExtensions;
+}
+
+void HelloTriangleApplication::printSupportedPhysicalDeviceExtensions() {
+    uint32_t extensionCount = 0;
+    vkEnumerateDeviceExtensionProperties(_physicalDevice, nullptr, &extensionCount, nullptr);
+
+    vector<VkExtensionProperties> extensions(extensionCount);
+
+    vkEnumerateDeviceExtensionProperties(_physicalDevice, nullptr, &extensionCount, extensions.data());
+
+    VkPhysicalDeviceProperties physicalDeviceProperties;
+    vkGetPhysicalDeviceProperties(_physicalDevice, &physicalDeviceProperties);
+
+    cout << COLOR_DIM << extensions.size() << COLOR_RESET << " available physical device extensions for " << physicalDeviceProperties.deviceName << " :\n";
+
+    for (const auto& extension : extensions)
+        cout << "\t" << extension.extensionName << "\n";
+
+    cout << "\n";
+}
+
 /* static */ VKAPI_ATTR VkBool32 VKAPI_CALL HelloTriangleApplication::debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -320,3 +394,4 @@ void HelloTriangleApplication::printQueueFamilies(VkPhysicalDevice device) {
 
     if (func != nullptr) func(instance, debugMessenger, pAllocator);
 }
+

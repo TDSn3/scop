@@ -38,6 +38,9 @@ private:
     bool isDeviceSuitable(VkPhysicalDevice device);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
     void printQueueFamilies(VkPhysicalDevice device);
+    void createLogicalDevice();
+    vector<const char *> getRequiredLogicalDeviceExtensions();
+    void printSupportedPhysicalDeviceExtensions();
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -58,4 +61,6 @@ private:
     VkInstance _instance;
     VkDebugUtilsMessengerEXT _debugMessenger;
     VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
+    VkDevice _device;
+    VkQueue _graphicsQueue;
 };
