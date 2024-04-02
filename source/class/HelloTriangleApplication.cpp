@@ -1,8 +1,5 @@
 #include <header.hpp>
 
-static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
-static void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
-
 void HelloTriangleApplication::run() {
     initWindow();
     initVulkan();
@@ -22,6 +19,7 @@ void HelloTriangleApplication::initWindow() {
 void HelloTriangleApplication::initVulkan() {
     createVulkanInstance();
     setupDebugMessenger();
+    pickPhysicalDevice();
 }
 
 void HelloTriangleApplication::mainLoop() {
@@ -48,7 +46,9 @@ void HelloTriangleApplication::createVulkanInstance () {
     populateDebugMessengerCreateInfo(debugCreateInfo);
     createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *) &debugCreateInfo;
 
-    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR; // MacOS
+    #ifdef __APPLE__
+        createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    #endif
 
     VkApplicationInfo appInfo{};
 
@@ -78,27 +78,6 @@ void HelloTriangleApplication::createVulkanInstance () {
         throw runtime_error("failed to create Vulkan instance: error " + to_string(result) + "\n"); // error code : https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkResult.html
 }
 
-void HelloTriangleApplication::printAvailableVulkanExtension() {
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-    vector<VkExtensionProperties> extensions(extensionCount);
-
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-
-    cout << extensions.size() << " available Vulkan extensions:\n";
-
-    for (const auto &extension : extensions)
-        cout << "\t" << extension.extensionName << "\n";
-}
-
-void HelloTriangleApplication::printAvailableGlfwExtension(vector<const char *> &glfwExtensions) {
-    cout << glfwExtensions.size() << " available GLFW extensions:\n";
-
-    for (size_t i = 0; i < glfwExtensions.size(); i++)
-        cout << "\t" << glfwExtensions[i] << "\n";
-}
-
 bool HelloTriangleApplication::checkValidationLayerSupport() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -106,12 +85,14 @@ bool HelloTriangleApplication::checkValidationLayerSupport() {
     vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    cout << availableLayers.size() << " available layers:\n";
+    cout << COLOR_DIM << availableLayers.size() << COLOR_RESET << " available layers:\n";
 
     for (const auto &layerProperties : availableLayers)
         cout << "\t" << layerProperties.layerName << "\n";
 
-    cout << validationLayers.size() << " validation layers:\n";
+    cout << "\n";
+
+    cout << COLOR_DIM << validationLayers.size() << COLOR_RESET << " validation layers required:\n";
 
     for (const char *layerName : validationLayers) {
         cout << "\t" << layerName;
@@ -132,7 +113,34 @@ bool HelloTriangleApplication::checkValidationLayerSupport() {
         }
     }
 
+    cout << "\n";
+
     return true;
+}
+
+void HelloTriangleApplication::printAvailableVulkanExtension() {
+    uint32_t extensionCount = 0;
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+
+    vector<VkExtensionProperties> extensions(extensionCount);
+
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+
+    cout << COLOR_DIM << extensions.size() << COLOR_RESET << " available Vulkan extensions:\n";
+
+    for (const auto &extension : extensions)
+        cout << "\t" << extension.extensionName << "\n";
+
+    cout << "\n";
+}
+
+void HelloTriangleApplication::printAvailableGlfwExtension(vector<const char *> &glfwExtensions) {
+    cout << COLOR_DIM << glfwExtensions.size() << COLOR_RESET << " available GLFW extensions:\n";
+
+    for (size_t i = 0; i < glfwExtensions.size(); i++)
+        cout << "\t" << glfwExtensions[i] << "\n";
+
+    cout << "\n";
 }
 
 vector<const char *> HelloTriangleApplication::getRequiredGlfwExtensions() {
@@ -148,6 +156,105 @@ vector<const char *> HelloTriangleApplication::getRequiredGlfwExtensions() {
     glfwExtensionsExtend.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
     return glfwExtensionsExtend;
+}
+
+void HelloTriangleApplication::setupDebugMessenger() {
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+
+    populateDebugMessengerCreateInfo(createInfo);
+
+    if (CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS)
+        throw runtime_error("failed to set up debug messenger!");
+}
+
+void HelloTriangleApplication::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
+    createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    createInfo.pfnUserCallback = debugCallback;
+}
+
+void HelloTriangleApplication::pickPhysicalDevice() {
+    uint32_t physicalDeviceCount = 0;
+    vkEnumeratePhysicalDevices(_instance, &physicalDeviceCount, nullptr);
+
+    if (physicalDeviceCount == 0)
+        throw runtime_error("failed to find GPUs with Vulkan support!");
+
+    vector<VkPhysicalDevice> physicalDevice(physicalDeviceCount);
+    vkEnumeratePhysicalDevices(_instance, &physicalDeviceCount, physicalDevice.data());
+
+    cout << COLOR_DIM << physicalDeviceCount << COLOR_RESET << " available physical devices:\n";
+
+    for (const auto &physicalDeviceIterator : physicalDevice) {
+        VkPhysicalDeviceProperties physicalDeviceProperties;
+        vkGetPhysicalDeviceProperties(physicalDeviceIterator, &physicalDeviceProperties);
+
+        cout << "\t" << physicalDeviceProperties.deviceName;
+
+        string deviceTypeName;
+        const auto deviceTypeValue = physicalDeviceProperties.deviceType;
+
+        if      (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_OTHER)          deviceTypeName = "other";
+        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) deviceTypeName = "integrated GPU";
+        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)   deviceTypeName = "discrete GPU";
+        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)    deviceTypeName = "virtual GPU";
+        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_CPU)            deviceTypeName = "CPU";
+        else                                                                deviceTypeName = "unknown";
+
+        cout << " " << COLOR_BLUE << deviceTypeName << COLOR_RESET << "\n";
+
+        if (isDeviceSuitable(physicalDeviceIterator)) {
+            _physicalDevice = physicalDeviceIterator;
+            cout << "\t" << physicalDeviceProperties.deviceName << COLOR_GREEN << " suitable" << COLOR_RESET << "\n";
+            break;
+        }
+
+        cout << "\t" << COLOR_RED << physicalDeviceProperties.deviceName << "not suitable" << COLOR_RESET << "\n";
+    }
+
+    cout << "\n";
+
+    if (_physicalDevice == VK_NULL_HANDLE)
+        throw runtime_error("failed to find a suitable GPU!");
+}
+
+bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
+    QueueFamilyIndices indices = findQueueFamilies(device);
+
+    return indices.isComplete();
+}
+
+QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device) {
+    QueueFamilyIndices indices;
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    cout << "\n\t" << COLOR_DIM << queueFamilyCount << COLOR_RESET << " available queue families:\n";
+
+    int i = 0;
+
+    for (const auto &queueFamiliesIterator : queueFamilies) {
+        cout << "\t\tindex: " << i << "\n";
+        cout << "\t\t\tqueue Count: " << queueFamiliesIterator.queueCount << "\n";
+        cout << "\t\t\tsupported Operations:\n";
+        if (queueFamiliesIterator.queueFlags & VK_QUEUE_GRAPHICS_BIT) cout << "\t\t\t\tgraphics\n";
+        if (queueFamiliesIterator.queueFlags & VK_QUEUE_COMPUTE_BIT) cout << "\t\t\t\tcompute\n";
+        if (queueFamiliesIterator.queueFlags & VK_QUEUE_TRANSFER_BIT) cout << "\t\t\t\ttransfer\n";
+        if (queueFamiliesIterator.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) cout << "\t\t\t\tsparse binding\n";
+        std::cout << "\n";
+
+        if (queueFamiliesIterator.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            indices.graphicsFamily = i;
+        i++;
+    }
+
+    return indices;
 }
 
 /* static */ VKAPI_ATTR VkBool32 VKAPI_CALL HelloTriangleApplication::debugCallback(
@@ -177,26 +284,7 @@ vector<const char *> HelloTriangleApplication::getRequiredGlfwExtensions() {
     return VK_FALSE;
 }
 
-void HelloTriangleApplication::setupDebugMessenger() {
-    VkDebugUtilsMessengerCreateInfoEXT createInfo;
-
-    populateDebugMessengerCreateInfo(createInfo);
-
-    if (CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS)
-        throw std::runtime_error("failed to set up debug messenger!");
-}
-
-void HelloTriangleApplication::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
-    createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    createInfo.pfnUserCallback = debugCallback;
-}
-
-
-
-static VkResult CreateDebugUtilsMessengerEXT(
+/* static */ VkResult HelloTriangleApplication::CreateDebugUtilsMessengerEXT(
     VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
     const VkAllocationCallbacks *pAllocator,
@@ -209,7 +297,7 @@ static VkResult CreateDebugUtilsMessengerEXT(
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
-static void DestroyDebugUtilsMessengerEXT(
+/* static */ void HelloTriangleApplication::DestroyDebugUtilsMessengerEXT(
     VkInstance instance,
     VkDebugUtilsMessengerEXT debugMessenger,
     const VkAllocationCallbacks *pAllocator) {
