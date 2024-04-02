@@ -203,30 +203,30 @@ void HelloTriangleApplication::pickPhysicalDevice() {
         else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_CPU)            deviceTypeName = "CPU";
         else                                                                deviceTypeName = "unknown";
 
-        cout << " " << COLOR_BLUE << deviceTypeName << COLOR_RESET << "\n";
+        cout << " " << COLOR_BLUE << deviceTypeName << COLOR_RESET;
 
         if (isDeviceSuitable(physicalDeviceIterator)) {
             _physicalDevice = physicalDeviceIterator;
-            cout << "\t" << physicalDeviceProperties.deviceName << COLOR_GREEN << " suitable" << COLOR_RESET << "\n";
+            cout << COLOR_GREEN << " suitable" << COLOR_RESET << "\n";
+            printQueueFamilies(physicalDeviceIterator);
             break;
         }
 
-        cout << "\t" << COLOR_RED << physicalDeviceProperties.deviceName << "not suitable" << COLOR_RESET << "\n";
+        cout << "not suitable" << COLOR_RESET << "\n";
+        printQueueFamilies(physicalDeviceIterator);
     }
-
-    cout << "\n";
 
     if (_physicalDevice == VK_NULL_HANDLE)
         throw runtime_error("failed to find a suitable GPU!");
 }
 
 bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
-    QueueFamilyIndices indices = findQueueFamilies(device);
+    QueueFamilyIndices indices = findQueueFamilies(device, VK_QUEUE_GRAPHICS_BIT);
 
     return indices.isComplete();
 }
 
-QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags) {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -235,7 +235,25 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice 
     vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-    cout << "\n\t" << COLOR_DIM << queueFamilyCount << COLOR_RESET << " available queue families:\n";
+    int i = 0;
+
+    for (const auto &queueFamiliesIterator : queueFamilies) {
+        if (queueFamiliesIterator.queueFlags & flags)
+            indices.graphicsFamily = i;
+        i++;
+    }
+
+    return indices;
+}
+
+void HelloTriangleApplication::printQueueFamilies(VkPhysicalDevice device) {
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    cout << "\t" << COLOR_DIM << queueFamilyCount << COLOR_RESET << " available queue families:\n";
 
     int i = 0;
 
@@ -249,12 +267,8 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice 
         if (queueFamiliesIterator.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) cout << "\t\t\t\tsparse binding\n";
         std::cout << "\n";
 
-        if (queueFamiliesIterator.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            indices.graphicsFamily = i;
         i++;
-    }
-
-    return indices;
+    }    
 }
 
 /* static */ VKAPI_ATTR VkBool32 VKAPI_CALL HelloTriangleApplication::debugCallback(

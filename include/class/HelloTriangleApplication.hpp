@@ -36,7 +36,8 @@ private:
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     void pickPhysicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
+    void printQueueFamilies(VkPhysicalDevice device);
 
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
