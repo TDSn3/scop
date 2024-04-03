@@ -131,6 +131,14 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice 
     for (const auto &queueFamiliesIterator : queueFamilies) {
         if (queueFamiliesIterator.queueFlags & flags)
             indices.graphicsFamily = i;
+
+        VkBool32 presentSupport = false;
+
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface, &presentSupport);
+
+        if (presentSupport)
+            indices.presentFamily = i;
+
         i++;
     }
 
@@ -142,20 +150,28 @@ void HelloTriangleApplication::createLogicalDevice() {
 
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-    VkDeviceQueueCreateInfo queueCreateInfo{};
-
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     QueueFamilyIndices indices = findQueueFamilies(_physicalDevice, VK_QUEUE_GRAPHICS_BIT);
-    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
-
-    queueCreateInfo.queueCount = 1;
+    printQueueFamilyIndices(indices);
+    set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
     float queuePriority = 1.0f;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
 
-    createInfo.queueCreateInfoCount = 1;
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    for (auto queueFamily : uniqueQueueFamilies) {
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+
+        queueCreateInfos.push_back(queueCreateInfo);
+        cout << COLOR_GREEN << "queue created with queue family index " << COLOR_BOLD << queueFamily << COLOR_RESET << "\n\n";
+    }
+
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
     createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
     createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -177,6 +193,7 @@ void HelloTriangleApplication::createLogicalDevice() {
         throw runtime_error("failed to create logical device!");
     
     vkGetDeviceQueue(_device, indices.graphicsFamily.value(), 0, &_graphicsQueue);
+    vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
 }
 
 vector<const char *> HelloTriangleApplication::getRequiredLogicalDeviceExtensions() {

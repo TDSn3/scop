@@ -1,6 +1,3 @@
-# scop
-Basic GPU rendering with Vulkan.
-
 # Usage
 
 ### MacOS

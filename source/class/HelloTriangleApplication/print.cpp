@@ -123,10 +123,24 @@ void HelloTriangleApplication::printQueueFamilies(VkPhysicalDevice device) {
         if (queueFamiliesIterator.queueFlags & VK_QUEUE_COMPUTE_BIT) cout << "\t\t\t\tcompute\n";
         if (queueFamiliesIterator.queueFlags & VK_QUEUE_TRANSFER_BIT) cout << "\t\t\t\ttransfer\n";
         if (queueFamiliesIterator.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) cout << "\t\t\t\tsparse binding\n";
-        std::cout << "\n";
+        cout << "\n";
 
         i++;
     }    
+}
+
+void HelloTriangleApplication::printQueueFamilyIndices(const QueueFamilyIndices &indices) {
+    cout << "queue family indices:\n";
+    
+    cout << "\tgraphics queue index: ";
+    if (indices.graphicsFamily.has_value()) cout << indices.graphicsFamily.value() << "\n";
+    else cout << "not found\n";
+    
+    cout << "\tpresent queue index: ";
+    if (indices.presentFamily.has_value()) cout << indices.presentFamily.value() << "\n";
+    else cout << "\tnot found\n";
+
+    cout << "\n";
 }
 
 void HelloTriangleApplication::printSupportedPhysicalDeviceExtensions() {

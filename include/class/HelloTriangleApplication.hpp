@@ -6,6 +6,7 @@ using namespace std;
 
 struct QueueFamilyIndices {
     optional<uint32_t> graphicsFamily;
+    optional<uint32_t> presentFamily;
 
     bool isComplete() {
         return graphicsFamily.has_value();
@@ -57,6 +58,7 @@ private:
     void printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
     void printAvailablePhysicalDevices();
     void printQueueFamilies(VkPhysicalDevice device);
+    void printQueueFamilyIndices(const QueueFamilyIndices &indices);
     void printSupportedPhysicalDeviceExtensions();
 
     GLFWwindow                  *_window;
@@ -66,4 +68,5 @@ private:
     VkPhysicalDevice            _physicalDevice = VK_NULL_HANDLE;
     VkDevice                    _device;
     VkQueue                     _graphicsQueue;
+    VkQueue                     _presentQueue;
 };
