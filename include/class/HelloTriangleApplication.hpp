@@ -1,5 +1,7 @@
 #pragma once
 
+#define VKAPI_CALLBACK VKAPI_ATTR VkBool32 VKAPI_CALL
+
 using namespace std;
 
 struct QueueFamilyIndices {
@@ -32,32 +34,21 @@ private:
     void cleanup();
 
     // main.cpp
-    void createVulkanInstance ();
-    bool checkValidationLayerSupport();
-    vector<const char *> getRequiredGlfwExtensions();
-    void pickPhysicalDevice();
-    bool isDeviceSuitable(VkPhysicalDevice device);
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
-    void createLogicalDevice();
-    vector<const char *> getRequiredLogicalDeviceExtensions();
+    void                    createVulkanInstance ();
+    bool                    checkValidationLayerSupport();
+    vector<const char *>    getRequiredGlfwExtensions();
+    void                    pickPhysicalDevice();
+    bool                    isDeviceSuitable(VkPhysicalDevice device);
+    QueueFamilyIndices      findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
+    void                    createLogicalDevice();
+    vector<const char *>    getRequiredLogicalDeviceExtensions();
 
     // setupDebugMessenger.cpp
-    void setupDebugMessenger();
-    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void* pUserData);
-    static VkResult CreateDebugUtilsMessengerEXT(
-        VkInstance instance,
-        const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-        const VkAllocationCallbacks *pAllocator,
-        VkDebugUtilsMessengerEXT *pDebugMessenger);
-    static void DestroyDebugUtilsMessengerEXT(
-        VkInstance instance,
-        VkDebugUtilsMessengerEXT debugMessenger,
-        const VkAllocationCallbacks *pAllocator);
+    void                    setupDebugMessenger();
+    void                    populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+    static VKAPI_CALLBACK   debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+    static VkResult         CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
+    static void             DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
 
     // print.cpp
     void printValidationLayerSupport();
@@ -66,10 +57,11 @@ private:
     void printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
     void printQueueFamilies(VkPhysicalDevice device);
 
-    GLFWwindow *_window;
-    VkInstance _instance;
-    VkDebugUtilsMessengerEXT _debugMessenger;
-    VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
-    VkDevice _device;
-    VkQueue _graphicsQueue;
+    GLFWwindow                  *_window;
+    VkInstance                  _instance;
+    VkDebugUtilsMessengerEXT    _debugMessenger;
+    VkSurfaceKHR                _surface;
+    VkPhysicalDevice            _physicalDevice = VK_NULL_HANDLE;
+    VkDevice                    _device;
+    VkQueue                     _graphicsQueue;
 };
