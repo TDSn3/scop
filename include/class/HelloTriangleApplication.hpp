@@ -42,6 +42,7 @@ private:
     QueueFamilyIndices      findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
     void                    createLogicalDevice();
     vector<const char *>    getRequiredLogicalDeviceExtensions();
+    void                    createSurface();
 
     // setupDebugMessenger.cpp
     void                    setupDebugMessenger();
@@ -52,10 +53,11 @@ private:
 
     // print.cpp
     void printValidationLayerSupport();
-    void printSupportedPhysicalDeviceExtensions();
     void printAvailableVulkanExtension();
     void printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
+    void printAvailablePhysicalDevices();
     void printQueueFamilies(VkPhysicalDevice device);
+    void printSupportedPhysicalDeviceExtensions();
 
     GLFWwindow                  *_window;
     VkInstance                  _instance;

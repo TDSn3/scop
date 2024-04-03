@@ -89,6 +89,8 @@ vector<const char *> HelloTriangleApplication::getRequiredGlfwExtensions() {
 }
 
 void HelloTriangleApplication::pickPhysicalDevice() {
+    printAvailablePhysicalDevices();
+    
     uint32_t physicalDeviceCount = 0;
     vkEnumeratePhysicalDevices(_instance, &physicalDeviceCount, nullptr);
 
@@ -98,35 +100,11 @@ void HelloTriangleApplication::pickPhysicalDevice() {
     vector<VkPhysicalDevice> physicalDevice(physicalDeviceCount);
     vkEnumeratePhysicalDevices(_instance, &physicalDeviceCount, physicalDevice.data());
 
-    cout << COLOR_DIM << physicalDeviceCount << COLOR_RESET << " available physical devices:\n";
-
     for (const auto &physicalDeviceIterator : physicalDevice) {
-        VkPhysicalDeviceProperties physicalDeviceProperties;
-        vkGetPhysicalDeviceProperties(physicalDeviceIterator, &physicalDeviceProperties);
-
-        cout << "\t" << physicalDeviceProperties.deviceName;
-
-        string deviceTypeName;
-        const auto deviceTypeValue = physicalDeviceProperties.deviceType;
-
-        if      (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_OTHER)          deviceTypeName = "other";
-        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) deviceTypeName = "integrated GPU";
-        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)   deviceTypeName = "discrete GPU";
-        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)    deviceTypeName = "virtual GPU";
-        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_CPU)            deviceTypeName = "CPU";
-        else                                                                deviceTypeName = "unknown";
-
-        cout << " " << COLOR_BLUE << deviceTypeName << COLOR_RESET;
-
         if (isDeviceSuitable(physicalDeviceIterator)) {
             _physicalDevice = physicalDeviceIterator;
-            cout << COLOR_GREEN << " suitable" << COLOR_RESET << "\n";
-            printQueueFamilies(physicalDeviceIterator);
             break;
         }
-
-        cout << "not suitable" << COLOR_RESET << "\n";
-        printQueueFamilies(physicalDeviceIterator);
     }
 
     if (_physicalDevice == VK_NULL_HANDLE)
@@ -209,4 +187,10 @@ vector<const char *> HelloTriangleApplication::getRequiredLogicalDeviceExtension
     #endif
 
     return logicalDeviceExtensions;
+}
+
+void HelloTriangleApplication::createSurface() {
+    if (glfwCreateWindowSurface(_instance, _window, nullptr, &_surface) != VK_SUCCESS) {
+        throw runtime_error("failed to create window surface!");
+    }
 }

@@ -61,6 +61,49 @@ void HelloTriangleApplication::printAvailableGlfwExtension(vector<const char *> 
     cout << "\n";
 }
 
+void HelloTriangleApplication::printAvailablePhysicalDevices() {
+    uint32_t physicalDeviceCount = 0;
+    vkEnumeratePhysicalDevices(_instance, &physicalDeviceCount, nullptr);  
+
+    if (physicalDeviceCount == 0) {
+        cerr << COLOR_BOLD_RED << "failed to find GPUs with Vulkan support!" << COLOR_RESET << endl;
+        return ;
+    }
+
+    vector<VkPhysicalDevice> physicalDevice(physicalDeviceCount);
+    vkEnumeratePhysicalDevices(_instance, &physicalDeviceCount, physicalDevice.data());
+
+    cout << COLOR_DIM << physicalDeviceCount << COLOR_RESET << " available physical devices:\n";
+
+    for (const auto &physicalDeviceIterator : physicalDevice) {
+        VkPhysicalDeviceProperties physicalDeviceProperties;
+        vkGetPhysicalDeviceProperties(physicalDeviceIterator, &physicalDeviceProperties);
+
+        cout << "\t" << physicalDeviceProperties.deviceName;
+
+        string deviceTypeName;
+        const auto deviceTypeValue = physicalDeviceProperties.deviceType;
+
+        if      (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_OTHER)          deviceTypeName = "other";
+        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) deviceTypeName = "integrated GPU";
+        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)   deviceTypeName = "discrete GPU";
+        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)    deviceTypeName = "virtual GPU";
+        else if (deviceTypeValue == VK_PHYSICAL_DEVICE_TYPE_CPU)            deviceTypeName = "CPU";
+        else                                                                deviceTypeName = "unknown";
+
+        cout << " " << COLOR_BLUE << deviceTypeName << COLOR_RESET;
+
+        if (isDeviceSuitable(physicalDeviceIterator)) {
+            cout << COLOR_GREEN << " suitable" << COLOR_RESET << "\n";
+            printQueueFamilies(physicalDeviceIterator);
+            break;
+        }
+
+        cout << "not suitable" << COLOR_RESET << "\n";
+        printQueueFamilies(physicalDeviceIterator);
+    }
+}
+
 void HelloTriangleApplication::printQueueFamilies(VkPhysicalDevice device) {
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);

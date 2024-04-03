@@ -19,6 +19,7 @@ void HelloTriangleApplication::initWindow() {
 void HelloTriangleApplication::initVulkan() {
     createVulkanInstance();
     setupDebugMessenger();
+	createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
 }
@@ -30,6 +31,7 @@ void HelloTriangleApplication::mainLoop() {
 void HelloTriangleApplication::cleanup() {
     vkDestroyDevice(_device, nullptr);
     DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
+	vkDestroySurfaceKHR(_instance, _surface, nullptr);
     vkDestroyInstance(_instance, nullptr);
     glfwDestroyWindow(_window);
     glfwTerminate();
