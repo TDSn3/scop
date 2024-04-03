@@ -1,41 +1,8 @@
 #include <header.hpp>
 
-void HelloTriangleApplication::run() {
-    initWindow();
-    initVulkan();
-    mainLoop();
-    cleanup();
-}
-
-void HelloTriangleApplication::initWindow() {
-    glfwInit();
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-    _window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-}
-
-void HelloTriangleApplication::initVulkan() {
-    createVulkanInstance();
-    setupDebugMessenger();
-    pickPhysicalDevice();
-    createLogicalDevice();
-}
-
-void HelloTriangleApplication::mainLoop() {
-    while (!glfwWindowShouldClose(_window)) glfwPollEvents();
-}
-
-void HelloTriangleApplication::cleanup() {
-    vkDestroyDevice(_device, nullptr);
-    DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
-    vkDestroyInstance(_instance, nullptr);
-    glfwDestroyWindow(_window);
-    glfwTerminate();
-}
-
 void HelloTriangleApplication::createVulkanInstance () {
+    printValidationLayerSupport();
+    
     if (!checkValidationLayerSupport())
         throw runtime_error("validation layers requested, but not available!");
 
@@ -87,62 +54,22 @@ bool HelloTriangleApplication::checkValidationLayerSupport() {
     vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-    cout << COLOR_DIM << availableLayers.size() << COLOR_RESET << " available layers:\n";
-
-    for (const auto &layerProperties : availableLayers)
-        cout << "\t" << layerProperties.layerName << "\n";
-
-    cout << "\n";
-
-    cout << COLOR_DIM << validationLayers.size() << COLOR_RESET << " validation layers required:\n";
-
     for (const char *layerName : validationLayers) {
-        cout << "\t" << layerName;
-
         bool layerFound = false;
 
         for (const auto &layerProperties : availableLayers) {
             if (strcmp(layerName, layerProperties.layerName) == 0) {
-                cout << COLOR_GREEN << " available\n" << COLOR_RESET;
                 layerFound = true;
                 break;
             }
         }
 
         if (!layerFound) {
-            cout << COLOR_RED << " unavailable\n" << COLOR_RESET;
             return false;
         }
     }
 
-    cout << "\n";
-
     return true;
-}
-
-void HelloTriangleApplication::printAvailableVulkanExtension() {
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-    vector<VkExtensionProperties> extensions(extensionCount);
-
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-
-    cout << COLOR_DIM << extensions.size() << COLOR_RESET << " available Vulkan extensions:\n";
-
-    for (const auto &extension : extensions)
-        cout << "\t" << extension.extensionName << "\n";
-
-    cout << "\n";
-}
-
-void HelloTriangleApplication::printAvailableGlfwExtension(vector<const char *> &glfwExtensions) {
-    cout << COLOR_DIM << glfwExtensions.size() << COLOR_RESET << " available GLFW extensions:\n";
-
-    for (size_t i = 0; i < glfwExtensions.size(); i++)
-        cout << "\t" << glfwExtensions[i] << "\n";
-
-    cout << "\n";
 }
 
 vector<const char *> HelloTriangleApplication::getRequiredGlfwExtensions() {
@@ -159,23 +86,6 @@ vector<const char *> HelloTriangleApplication::getRequiredGlfwExtensions() {
     glfwExtensionsExtend.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
     return glfwExtensionsExtend;
-}
-
-void HelloTriangleApplication::setupDebugMessenger() {
-    VkDebugUtilsMessengerCreateInfoEXT createInfo;
-
-    populateDebugMessengerCreateInfo(createInfo);
-
-    if (CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS)
-        throw runtime_error("failed to set up debug messenger!");
-}
-
-void HelloTriangleApplication::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
-    createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    createInfo.pfnUserCallback = debugCallback;
 }
 
 void HelloTriangleApplication::pickPhysicalDevice() {
@@ -249,31 +159,6 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice 
     return indices;
 }
 
-void HelloTriangleApplication::printQueueFamilies(VkPhysicalDevice device) {
-    uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-    vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-    cout << "\t" << COLOR_DIM << queueFamilyCount << COLOR_RESET << " available queue families:\n";
-
-    int i = 0;
-
-    for (const auto &queueFamiliesIterator : queueFamilies) {
-        cout << "\t\tindex: " << i << "\n";
-        cout << "\t\t\tqueue Count: " << queueFamiliesIterator.queueCount << "\n";
-        cout << "\t\t\tsupported Operations:\n";
-        if (queueFamiliesIterator.queueFlags & VK_QUEUE_GRAPHICS_BIT) cout << "\t\t\t\tgraphics\n";
-        if (queueFamiliesIterator.queueFlags & VK_QUEUE_COMPUTE_BIT) cout << "\t\t\t\tcompute\n";
-        if (queueFamiliesIterator.queueFlags & VK_QUEUE_TRANSFER_BIT) cout << "\t\t\t\ttransfer\n";
-        if (queueFamiliesIterator.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) cout << "\t\t\t\tsparse binding\n";
-        std::cout << "\n";
-
-        i++;
-    }    
-}
-
 void HelloTriangleApplication::createLogicalDevice() {
     VkDeviceCreateInfo createInfo{};
 
@@ -325,73 +210,3 @@ vector<const char *> HelloTriangleApplication::getRequiredLogicalDeviceExtension
 
     return logicalDeviceExtensions;
 }
-
-void HelloTriangleApplication::printSupportedPhysicalDeviceExtensions() {
-    uint32_t extensionCount = 0;
-    vkEnumerateDeviceExtensionProperties(_physicalDevice, nullptr, &extensionCount, nullptr);
-
-    vector<VkExtensionProperties> extensions(extensionCount);
-
-    vkEnumerateDeviceExtensionProperties(_physicalDevice, nullptr, &extensionCount, extensions.data());
-
-    VkPhysicalDeviceProperties physicalDeviceProperties;
-    vkGetPhysicalDeviceProperties(_physicalDevice, &physicalDeviceProperties);
-
-    cout << COLOR_DIM << extensions.size() << COLOR_RESET << " available physical device extensions for " << physicalDeviceProperties.deviceName << " :\n";
-
-    for (const auto& extension : extensions)
-        cout << "\t" << extension.extensionName << "\n";
-
-    cout << "\n";
-}
-
-/* static */ VKAPI_ATTR VkBool32 VKAPI_CALL HelloTriangleApplication::debugCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-    void* pUserData) {
-
-    string color = COLOR_RESET;
-
-    if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-        // Call tracking message
-        color = COLOR_DIM;
-    } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-        // Informational message like the creation of a resource
-        color = COLOR_DIM_BLUE;
-    } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-        // Message about behavior that is not necessarily an error, but very likely a bug in your application
-        color = COLOR_YELLOW;
-    } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-        // Message about behavior that is invalid and may cause crashes
-        color = COLOR_RED;
-    }
-
-    cerr << color << COLOR_BOLD << "validation layer: " << COLOR_RESET << color << pCallbackData->pMessage << COLOR_RESET << "\n\n";
-
-    return VK_FALSE;
-}
-
-/* static */ VkResult HelloTriangleApplication::CreateDebugUtilsMessengerEXT(
-    VkInstance instance,
-    const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-    const VkAllocationCallbacks *pAllocator,
-    VkDebugUtilsMessengerEXT *pDebugMessenger) {
-
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-
-    if (func != nullptr) return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-    
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
-
-/* static */ void HelloTriangleApplication::DestroyDebugUtilsMessengerEXT(
-    VkInstance instance,
-    VkDebugUtilsMessengerEXT debugMessenger,
-    const VkAllocationCallbacks *pAllocator) {
-
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-
-    if (func != nullptr) func(instance, debugMessenger, pAllocator);
-}
-

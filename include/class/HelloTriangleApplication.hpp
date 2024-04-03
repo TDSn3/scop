@@ -12,6 +12,8 @@ struct QueueFamilyIndices {
 
 class HelloTriangleApplication {
 public:
+
+    // run.cpp
     void run();
 
     const uint32_t WIDTH = 800;
@@ -22,26 +24,26 @@ public:
     };
 
 private:
+
+    // run.cpp
     void initWindow();
     void initVulkan();
     void mainLoop();
     void cleanup();
 
+    // main.cpp
     void createVulkanInstance ();
     bool checkValidationLayerSupport();
-    void printAvailableVulkanExtension();
-    void printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
     vector<const char *> getRequiredGlfwExtensions();
-    void setupDebugMessenger();
-    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     void pickPhysicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
-    void printQueueFamilies(VkPhysicalDevice device);
     void createLogicalDevice();
     vector<const char *> getRequiredLogicalDeviceExtensions();
-    void printSupportedPhysicalDeviceExtensions();
 
+    // setupDebugMessenger.cpp
+    void setupDebugMessenger();
+    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -56,6 +58,13 @@ private:
         VkInstance instance,
         VkDebugUtilsMessengerEXT debugMessenger,
         const VkAllocationCallbacks *pAllocator);
+
+    // print.cpp
+    void printValidationLayerSupport();
+    void printSupportedPhysicalDeviceExtensions();
+    void printAvailableVulkanExtension();
+    void printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
+    void printQueueFamilies(VkPhysicalDevice device);
 
     GLFWwindow *_window;
     VkInstance _instance;
