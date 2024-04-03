@@ -113,8 +113,15 @@ void HelloTriangleApplication::pickPhysicalDevice() {
 
 bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
     QueueFamilyIndices indices = findQueueFamilies(device, VK_QUEUE_GRAPHICS_BIT);
+    bool extensionsSupported = checkPhysicalDeviceExtensionSupport(device);
+    bool swapChainAdequate = false;
 
-    return indices.isComplete();
+    if (extensionsSupported) {
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
+
+    return indices.isComplete() && extensionsSupported && extensionsSupported;
 }
 
 QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags) {
@@ -126,7 +133,7 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice 
     vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-    int i = 0;
+    uint32_t i = 0;
 
     for (const auto &queueFamiliesIterator : queueFamilies) {
         if (queueFamiliesIterator.queueFlags & flags)
@@ -143,6 +150,21 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice 
     }
 
     return indices;
+}
+
+bool HelloTriangleApplication::checkPhysicalDeviceExtensionSupport(VkPhysicalDevice device) {
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    set<string> requiredExtensions(physicalDeviceExtensions.begin(), physicalDeviceExtensions.end());
+
+    for (const auto &extension : availableExtensions)
+        requiredExtensions.erase(extension.extensionName);
+
+    return requiredExtensions.empty();
 }
 
 void HelloTriangleApplication::createLogicalDevice() {
@@ -197,7 +219,7 @@ void HelloTriangleApplication::createLogicalDevice() {
 }
 
 vector<const char *> HelloTriangleApplication::getRequiredLogicalDeviceExtensions() {
-    vector<const char *> logicalDeviceExtensions;
+    vector<const char *> logicalDeviceExtensions = physicalDeviceExtensions;
 
     #ifdef __APPLE__
         logicalDeviceExtensions.push_back("VK_KHR_portability_subset");
@@ -210,4 +232,31 @@ void HelloTriangleApplication::createSurface() {
     if (glfwCreateWindowSurface(_instance, _window, nullptr, &_surface) != VK_SUCCESS) {
         throw runtime_error("failed to create window surface!");
     }
+}
+
+SwapChainSupportDetails HelloTriangleApplication::querySwapChainSupport(VkPhysicalDevice device) {
+    SwapChainSupportDetails details;
+
+    //  querying the surface capabilities
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _surface, &details.capabilities);
+
+    //  querying the supported surface formats
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, nullptr);
+
+    if (formatCount != 0) {
+        details.formats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, details.formats.data());
+    }
+
+    //  querying the supported presentation modes
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, nullptr);
+
+    if (presentModeCount != 0) {
+        details.presentModes.resize(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, details.presentModes.data());
+    }
+
+    return details;
 }

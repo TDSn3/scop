@@ -13,20 +13,37 @@ struct QueueFamilyIndices {
     }
 };
 
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR    capabilities;
+    vector<VkSurfaceFormatKHR>  formats;
+    vector<VkPresentModeKHR>    presentModes;
+};
+
 class HelloTriangleApplication {
 public:
+
+    const int WIDTH = 800;
+    const int HEIGHT = 600;
+    const vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation",
+    };
+    const vector<const char*> physicalDeviceExtensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    };
 
     // run.cpp
     void run();
 
-    const uint32_t WIDTH = 800;
-    const uint32_t HEIGHT = 600;
-
-    const vector<const char*> validationLayers = {
-        "VK_LAYER_KHRONOS_validation",
-    };
-
 private:
+
+    GLFWwindow                  *_window;
+    VkInstance                  _instance;
+    VkDebugUtilsMessengerEXT    _debugMessenger;
+    VkSurfaceKHR                _surface;
+    VkPhysicalDevice            _physicalDevice = VK_NULL_HANDLE;
+    VkDevice                    _device;
+    VkQueue                     _graphicsQueue;
+    VkQueue                     _presentQueue;
 
     // run.cpp
     void initWindow();
@@ -34,16 +51,18 @@ private:
     void mainLoop();
     void cleanup();
 
-    // main.cpp
+    // runMain.cpp
     void                    createVulkanInstance ();
     bool                    checkValidationLayerSupport();
     vector<const char *>    getRequiredGlfwExtensions();
     void                    pickPhysicalDevice();
     bool                    isDeviceSuitable(VkPhysicalDevice device);
     QueueFamilyIndices      findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
+    bool                    checkPhysicalDeviceExtensionSupport(VkPhysicalDevice device);
     void                    createLogicalDevice();
     vector<const char *>    getRequiredLogicalDeviceExtensions();
     void                    createSurface();
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
     // setupDebugMessenger.cpp
     void                    setupDebugMessenger();
@@ -61,12 +80,4 @@ private:
     void printQueueFamilyIndices(const QueueFamilyIndices &indices);
     void printSupportedPhysicalDeviceExtensions();
 
-    GLFWwindow                  *_window;
-    VkInstance                  _instance;
-    VkDebugUtilsMessengerEXT    _debugMessenger;
-    VkSurfaceKHR                _surface;
-    VkPhysicalDevice            _physicalDevice = VK_NULL_HANDLE;
-    VkDevice                    _device;
-    VkQueue                     _graphicsQueue;
-    VkQueue                     _presentQueue;
 };

@@ -23,6 +23,8 @@ void HelloTriangleApplication::populateDebugMessengerCreateInfo(VkDebugUtilsMess
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData) {
 
+	(void) messageType; (void) pUserData;
+
     string color = COLOR_RESET;
 
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {

@@ -41,7 +41,6 @@ void HelloTriangleApplication::printAvailableVulkanExtension() {
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
     vector<VkExtensionProperties> extensions(extensionCount);
-
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
     cout << COLOR_DIM << extensions.size() << COLOR_RESET << " available Vulkan extensions:\n";
@@ -117,8 +116,8 @@ void HelloTriangleApplication::printQueueFamilies(VkPhysicalDevice device) {
 
     for (const auto &queueFamiliesIterator : queueFamilies) {
         cout << "\t\tindex: " << i << "\n";
-        cout << "\t\t\tqueue Count: " << queueFamiliesIterator.queueCount << "\n";
-        cout << "\t\t\tsupported Operations:\n";
+        cout << "\t\t\tqueue count: " << queueFamiliesIterator.queueCount << "\n";
+        cout << "\t\t\tsupported operations:\n";
         if (queueFamiliesIterator.queueFlags & VK_QUEUE_GRAPHICS_BIT) cout << "\t\t\t\tgraphics\n";
         if (queueFamiliesIterator.queueFlags & VK_QUEUE_COMPUTE_BIT) cout << "\t\t\t\tcompute\n";
         if (queueFamiliesIterator.queueFlags & VK_QUEUE_TRANSFER_BIT) cout << "\t\t\t\ttransfer\n";
@@ -148,7 +147,6 @@ void HelloTriangleApplication::printSupportedPhysicalDeviceExtensions() {
     vkEnumerateDeviceExtensionProperties(_physicalDevice, nullptr, &extensionCount, nullptr);
 
     vector<VkExtensionProperties> extensions(extensionCount);
-
     vkEnumerateDeviceExtensionProperties(_physicalDevice, nullptr, &extensionCount, extensions.data());
 
     VkPhysicalDeviceProperties physicalDeviceProperties;
@@ -160,4 +158,25 @@ void HelloTriangleApplication::printSupportedPhysicalDeviceExtensions() {
         cout << "\t" << extension.extensionName << "\n";
 
     cout << "\n";
+
+    cout << COLOR_DIM << physicalDeviceExtensions.size() << COLOR_RESET << " physical device extensions required:\n";
+
+    for (const auto &deviceExtensionIterator : physicalDeviceExtensions) {
+        cout << "\t" << deviceExtensionIterator;
+
+        bool extensionFound = false;
+
+        for (const auto &extension : extensions) {
+            if (strcmp(deviceExtensionIterator, extension.extensionName) == 0) {
+                cout << COLOR_GREEN << " available\n" << COLOR_RESET;
+                extensionFound = true;
+                break;
+            }
+        }
+
+        if (!extensionFound)
+            cout << COLOR_RED << " unavailable\n" << COLOR_RESET;
+    }
+
+    cout << "\n"; 
 }
