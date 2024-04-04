@@ -22,6 +22,7 @@ void HelloTriangleApplication::initVulkan() {
 	createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
+	createSwapChain();
 }
 
 void HelloTriangleApplication::mainLoop() {
@@ -29,6 +30,7 @@ void HelloTriangleApplication::mainLoop() {
 }
 
 void HelloTriangleApplication::cleanup() {
+	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
     vkDestroyDevice(_device, nullptr);
     DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);

@@ -4,6 +4,17 @@
 
 using namespace std;
 
+const int WIDTH = 800;
+const int HEIGHT = 600;
+
+const vector<const char*> validationLayers = {
+    "VK_LAYER_KHRONOS_validation",
+};
+
+const vector<const char*> physicalDeviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+};
+
 struct QueueFamilyIndices {
     optional<uint32_t> graphicsFamily;
     optional<uint32_t> presentFamily;
@@ -22,15 +33,6 @@ struct SwapChainSupportDetails {
 class HelloTriangleApplication {
 public:
 
-    const int WIDTH = 800;
-    const int HEIGHT = 600;
-    const vector<const char*> validationLayers = {
-        "VK_LAYER_KHRONOS_validation",
-    };
-    const vector<const char*> physicalDeviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    };
-
     // run.cpp
     void run();
 
@@ -41,9 +43,13 @@ private:
     VkDebugUtilsMessengerEXT    _debugMessenger;
     VkSurfaceKHR                _surface;
     VkPhysicalDevice            _physicalDevice = VK_NULL_HANDLE;
-    VkDevice                    _device;
+    VkDevice                    _device; // logical device
     VkQueue                     _graphicsQueue;
     VkQueue                     _presentQueue;
+    VkSwapchainKHR              _swapChain;
+    vector<VkImage>             _swapChainImages;
+    VkFormat                    _swapChainImageFormat;
+    VkExtent2D                  _swapChainExtent;
 
     // run.cpp
     void initWindow();
@@ -62,7 +68,11 @@ private:
     void                    createLogicalDevice();
     vector<const char *>    getRequiredLogicalDeviceExtensions();
     void                    createSurface();
+    void                    createSwapChain();
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    VkSurfaceFormatKHR      chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR> &availableFormats);
+    VkPresentModeKHR        chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+    VkExtent2D              chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
     // setupDebugMessenger.cpp
     void                    setupDebugMessenger();
