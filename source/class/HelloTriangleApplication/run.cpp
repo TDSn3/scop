@@ -23,6 +23,7 @@ void HelloTriangleApplication::initVulkan() {
     pickPhysicalDevice();
     createLogicalDevice();
 	createSwapChain();
+    createImageViews();
 }
 
 void HelloTriangleApplication::mainLoop() {
@@ -30,6 +31,9 @@ void HelloTriangleApplication::mainLoop() {
 }
 
 void HelloTriangleApplication::cleanup() {
+   for (auto imageView : _swapChainImageViews)
+        vkDestroyImageView(_device, imageView, nullptr);
+
 	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
     vkDestroyDevice(_device, nullptr);
     DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);

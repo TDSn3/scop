@@ -33,7 +33,7 @@ struct SwapChainSupportDetails {
 class HelloTriangleApplication {
 public:
 
-    // run.cpp
+    // ⤹ run.cpp
     void run();
 
 private:
@@ -50,14 +50,15 @@ private:
     vector<VkImage>             _swapChainImages;
     VkFormat                    _swapChainImageFormat;
     VkExtent2D                  _swapChainExtent;
+    vector<VkImageView>         _swapChainImageViews;
 
-    // run.cpp
+    // ⤹ run.cpp
     void initWindow();
     void initVulkan();
     void mainLoop();
     void cleanup();
 
-    // runMain.cpp
+    // ⤹ runMain.cpp
     void                    createVulkanInstance ();
     bool                    checkValidationLayerSupport();
     vector<const char *>    getRequiredGlfwExtensions();
@@ -73,15 +74,16 @@ private:
     VkSurfaceFormatKHR      chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR> &availableFormats);
     VkPresentModeKHR        chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
     VkExtent2D              chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+    void                    createImageViews();
 
-    // setupDebugMessenger.cpp
+    // ⤹ setupDebugMessenger.cpp
     void                    setupDebugMessenger();
     void                    populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     static VKAPI_CALLBACK   debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
     static VkResult         CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
     static void             DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
 
-    // print.cpp
+    // ⤹ print.cpp
     void printValidationLayerSupport();
     void printAvailableVulkanExtension();
     void printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
