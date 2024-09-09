@@ -24,6 +24,7 @@ void HelloTriangleApplication::initVulkan() {
     createLogicalDevice();
 	createSwapChain();
     createImageViews();
+    createGraphicsPipeline();
 }
 
 void HelloTriangleApplication::mainLoop() {

@@ -384,3 +384,7 @@ void HelloTriangleApplication::createImageViews() {
             throw std::runtime_error("failed to create image views!");
     }
 }
+
+void HelloTriangleApplication::createGraphicsPipeline() {
+
+}
