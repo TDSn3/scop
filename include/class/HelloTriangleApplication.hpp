@@ -53,6 +53,7 @@ private:
     vector<VkImageView>         _swapChainImageViews;
     VkRenderPass                _renderPass;
     VkPipelineLayout            _pipelineLayout;
+    VkPipeline                  _graphicsPipeline;
 
     // ⤹ run.cpp
     void initWindow();
