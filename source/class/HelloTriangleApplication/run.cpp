@@ -24,6 +24,7 @@ void HelloTriangleApplication::initVulkan() {
     createLogicalDevice();
 	createSwapChain();
     createImageViews();
+    createRenderPass();
     createGraphicsPipeline();
 }
 
@@ -33,6 +34,7 @@ void HelloTriangleApplication::mainLoop() {
 
 void HelloTriangleApplication::cleanup() {
     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
+    vkDestroyRenderPass(_device, _renderPass, nullptr);
 
    for (auto imageView : _swapChainImageViews)
         vkDestroyImageView(_device, imageView, nullptr);
