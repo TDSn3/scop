@@ -32,6 +32,8 @@ void HelloTriangleApplication::mainLoop() {
 }
 
 void HelloTriangleApplication::cleanup() {
+    vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
+
    for (auto imageView : _swapChainImageViews)
         vkDestroyImageView(_device, imageView, nullptr);
 

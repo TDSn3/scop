@@ -51,6 +51,7 @@ private:
     VkFormat                    _swapChainImageFormat;
     VkExtent2D                  _swapChainExtent;
     vector<VkImageView>         _swapChainImageViews;
+    VkPipelineLayout            _pipelineLayout;
 
     // ⤹ run.cpp
     void initWindow();
@@ -76,6 +77,8 @@ private:
     VkExtent2D              chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
     void                    createImageViews();
     void                    createGraphicsPipeline();
+    static vector<char>     readFile(const string &filename);
+    VkShaderModule          createShaderModule(const vector<char> &code);
 
     // ⤹ setupDebugMessenger.cpp
     void                    setupDebugMessenger();
