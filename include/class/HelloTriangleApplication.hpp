@@ -39,18 +39,24 @@ public:
 private:
 
     GLFWwindow                  *_window;
+
     VkInstance                  _instance;
     VkDebugUtilsMessengerEXT    _debugMessenger;
     VkSurfaceKHR                _surface;
+
     VkPhysicalDevice            _physicalDevice = VK_NULL_HANDLE;
     VkDevice                    _device; // logical device
+
     VkQueue                     _graphicsQueue;
     VkQueue                     _presentQueue;
+
     VkSwapchainKHR              _swapChain;
     vector<VkImage>             _swapChainImages;
     VkFormat                    _swapChainImageFormat;
     VkExtent2D                  _swapChainExtent;
     vector<VkImageView>         _swapChainImageViews;
+    vector<VkFramebuffer>       _swapChainFramebuffers;
+
     VkRenderPass                _renderPass;
     VkPipelineLayout            _pipelineLayout;
     VkPipeline                  _graphicsPipeline;
@@ -82,6 +88,7 @@ private:
     static vector<char>     readFile(const string &filename);
     VkShaderModule          createShaderModule(const vector<char> &code);
     void                    createRenderPass();
+    void                    createFramebuffers();
 
     // ⤹ setupDebugMessenger.cpp
     void                    setupDebugMessenger();

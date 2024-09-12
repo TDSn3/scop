@@ -33,6 +33,9 @@ void HelloTriangleApplication::mainLoop() {
 }
 
 void HelloTriangleApplication::cleanup() {
+    for (auto framebuffer : _swapChainFramebuffers)
+        vkDestroyFramebuffer(_device, framebuffer, nullptr);
+
     vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
     vkDestroyRenderPass(_device, _renderPass, nullptr);
