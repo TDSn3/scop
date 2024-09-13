@@ -61,6 +61,9 @@ private:
     VkPipelineLayout            _pipelineLayout;
     VkPipeline                  _graphicsPipeline;
 
+    VkCommandPool               _commandPool;
+    VkCommandBuffer             _commandBuffer;
+
     // ⤹ run.cpp
     void initWindow();
     void initVulkan();
@@ -89,6 +92,9 @@ private:
     VkShaderModule          createShaderModule(const vector<char> &code);
     void                    createRenderPass();
     void                    createFramebuffers();
+    void                    createCommandPool();
+    void                    createCommandBuffer();
+    void                    recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
     // ⤹ setupDebugMessenger.cpp
     void                    setupDebugMessenger();

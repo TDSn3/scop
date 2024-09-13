@@ -26,6 +26,8 @@ void HelloTriangleApplication::initVulkan() {
     createImageViews();
     createRenderPass();
     createGraphicsPipeline();
+    createCommandPool();
+    createCommandBuffer();
 }
 
 void HelloTriangleApplication::mainLoop() {
@@ -33,6 +35,8 @@ void HelloTriangleApplication::mainLoop() {
 }
 
 void HelloTriangleApplication::cleanup() {
+    vkDestroyCommandPool(_device, _commandPool, nullptr);
+
     for (auto framebuffer : _swapChainFramebuffers)
         vkDestroyFramebuffer(_device, framebuffer, nullptr);
 
