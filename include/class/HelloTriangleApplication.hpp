@@ -68,6 +68,7 @@ private:
     void initWindow();
     void initVulkan();
     void mainLoop();
+    void drawFrame();
     void cleanup();
 
     // ⤹ runMain.cpp

@@ -31,7 +31,14 @@ void HelloTriangleApplication::initVulkan() {
 }
 
 void HelloTriangleApplication::mainLoop() {
-    while (!glfwWindowShouldClose(_window)) glfwPollEvents();
+    while (!glfwWindowShouldClose(_window)) {
+        glfwPollEvents();
+        drawFrame();
+    }
+}
+
+void HelloTriangleApplication::drawFrame() {
+
 }
 
 void HelloTriangleApplication::cleanup() {
