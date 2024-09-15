@@ -19,16 +19,15 @@ void HelloTriangleApplication::initWindow() {
 void HelloTriangleApplication::initVulkan() {
     createVulkanInstance();
     setupDebugMessenger();
-	createSurface();
+    createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
-	createSwapChain();
+    createSwapChain();
     createImageViews();
     createRenderPass();
     createGraphicsPipeline();
     createFramebuffers();
-    createCommandPool();
-    createCommandBuffer();
+    setupCommandResources();
     createSyncObjects();
 }
 
