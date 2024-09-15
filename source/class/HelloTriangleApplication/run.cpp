@@ -26,6 +26,7 @@ void HelloTriangleApplication::initVulkan() {
     createImageViews();
     createRenderPass();
     createGraphicsPipeline();
+    createFramebuffers();
     createCommandPool();
     createCommandBuffer();
     createSyncObjects();
