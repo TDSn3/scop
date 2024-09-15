@@ -64,6 +64,10 @@ private:
     VkCommandPool               _commandPool;
     VkCommandBuffer             _commandBuffer;
 
+    VkSemaphore                 _imageAvailableSemaphore;
+    VkSemaphore                 _renderFinishedSemaphore;
+    VkFence                     _inFlightFence;
+
     // ⤹ run.cpp
     void initWindow();
     void initVulkan();
@@ -96,6 +100,7 @@ private:
     void                    createCommandPool();
     void                    createCommandBuffer();
     void                    recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    void                    createSyncObjects();
 
     // ⤹ setupDebugMessenger.cpp
     void                    setupDebugMessenger();
