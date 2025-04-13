@@ -54,9 +54,9 @@
        - Pour chaque image du swapchain, crée un *framebuffer* qui associe l’image vue (image view) au render pass.  
        - Un framebuffer concrétise l’interface entre l’image et le render pass.  
    11. ` setupCommandResources() `  
-       - On voit à l’intérieur qu’il y a notamment ` createCommandPool() ` et ` createCommandBuffer() `.  
+       - On voit à l’intérieur qu’il y a notamment ` createCommandPool() ` et ` createCommandBuffers() `.  
        - Le *command pool* est l’objet Vulkan depuis lequel on va allouer des *command buffers*.  
-       - Le *command buffer* contient les commandes pour dessiner.  
+       - Les *command buffers* contiennent les commandes pour dessiner.  
    12. ` createSyncObjects() `  
        - Crée des sémaphores, fences et autres objets de synchronisation.  
        - Permet de synchroniser le CPU et le GPU (ex. s’assurer qu’on ne dessine pas sur une image qui est encore en cours de présentation à l’écran).  
@@ -74,19 +74,19 @@
       - Reset la fence pour la réutiliser.  
    2. ` vkAcquireNextImageKHR(...) `  
       - Récupère l’index d’une image libre dans le swapchain.  
-      - On passe en paramètres un sémaphore (` _imageAvailableSemaphore `) qui sera signalé quand l’image sera prête.  
+      - On passe en paramètres un sémaphore (` _imageAvailableSemaphores `) qui sera signalé quand l’image sera prête.  
    3. ` vkResetCommandBuffer(...) ` + ` recordCommandBuffer(...) `  
       - Réinitialise le command buffer.  
       - Enregistre les commandes de dessin (begin render pass, draw, end render pass, etc.) dans la fonction ` recordCommandBuffer(...) `.  
    4. **Submit au GPU**  
       - Remplit une structure ` VkSubmitInfo ` qui dit :  
-        - « Attends tel sémaphore (` _imageAvailableSemaphore `) avant d’exécuter les commandes. »  
+        - « Attends tel sémaphore (` _imageAvailableSemaphores `) avant d’exécuter les commandes. »  
         - « Voici mon command buffer à exécuter. »  
-        - « Signal tel sémaphore (` _renderFinishedSemaphore `) quand c’est fini. »  
+        - « Signal tel sémaphore (` _renderFinishedSemaphores `) quand c’est fini. »  
       - ` vkQueueSubmit(_graphicsQueue, ...) ` envoie le tout à la *graphics queue*.  
-      - On associe la *fence* (` _inFlightFence `) pour être notifié quand tout est fini.  
+      - On associe la *fence* (` _inFlightFences `) pour être notifié quand tout est fini.  
    5. **Présenter l’image à l’écran**  
-      - ` vkQueuePresentKHR(...) ` en utilisant le sémaphore ` _renderFinishedSemaphore ` comme condition d’attente.  
+      - ` vkQueuePresentKHR(...) ` en utilisant le sémaphore ` _renderFinishedSemaphores ` comme condition d’attente.  
       - Demande d’afficher l’image indexée par ` imageIndex `.  
 
 ## 7. **` cleanup() `**  

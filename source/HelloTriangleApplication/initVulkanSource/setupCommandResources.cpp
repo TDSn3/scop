@@ -2,7 +2,7 @@
 
 void HelloTriangleApplication::setupCommandResources() {
     createCommandPool();
-    createCommandBuffer();
+    createCommandBuffers();
 }
 
 void HelloTriangleApplication::createCommandPool() {
@@ -17,13 +17,15 @@ void HelloTriangleApplication::createCommandPool() {
         throw std::runtime_error("failed to create command pool!");
 }
 
-void HelloTriangleApplication::createCommandBuffer() {
+void HelloTriangleApplication::createCommandBuffers() {
+    _commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = _commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
+    allocInfo.commandBufferCount = (uint32_t) _commandBuffers.size();
 
-    if (vkAllocateCommandBuffers(_device, &allocInfo, &_commandBuffer) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(_device, &allocInfo, _commandBuffers.data()) != VK_SUCCESS)
         throw std::runtime_error("failed to allocate command buffers!");
 }

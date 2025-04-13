@@ -7,6 +7,8 @@ using namespace std;
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
+const int MAX_FRAMES_IN_FLIGHT = 2; // Nombre d'images à traiter simultanément
+
 const vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation",
 };

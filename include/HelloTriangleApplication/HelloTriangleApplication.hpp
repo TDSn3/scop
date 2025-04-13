@@ -6,100 +6,107 @@ class HelloTriangleApplication {
 public:
 
     // ⤹ run.cpp
-        void                    run();
+        void                        run();
 
 private:
 
-    GLFWwindow                  *_window;
+    GLFWwindow                      *_window;
 
-    VkInstance                  _instance;
-    VkDebugUtilsMessengerEXT    _debugMessenger;
-    VkSurfaceKHR                _surface;
+    VkInstance                      _instance;
+    VkDebugUtilsMessengerEXT        _debugMessenger;
+    VkSurfaceKHR                    _surface;
 
-    VkPhysicalDevice            _physicalDevice = VK_NULL_HANDLE;
-    VkDevice                    _device; // logical device
+    VkPhysicalDevice                _physicalDevice = VK_NULL_HANDLE;
+    VkDevice                        _device; // logical device
 
-    VkQueue                     _graphicsQueue;
-    VkQueue                     _presentQueue;
+    VkQueue                         _graphicsQueue;
+    VkQueue                         _presentQueue;
 
-    VkSwapchainKHR              _swapChain;
-    vector<VkImage>             _swapChainImages;
-    VkFormat                    _swapChainImageFormat;
-    VkExtent2D                  _swapChainExtent;
-    vector<VkImageView>         _swapChainImageViews;
-    vector<VkFramebuffer>       _swapChainFramebuffers;
+    VkSwapchainKHR                  _swapChain;
+    vector<VkImage>                 _swapChainImages;
+    VkFormat                        _swapChainImageFormat;
+    VkExtent2D                      _swapChainExtent;
+    vector<VkImageView>             _swapChainImageViews;
+    vector<VkFramebuffer>           _swapChainFramebuffers;
 
-    VkRenderPass                _renderPass;
-    VkPipelineLayout            _pipelineLayout;
-    VkPipeline                  _graphicsPipeline;
+    VkRenderPass                    _renderPass;
+    VkPipelineLayout                _pipelineLayout;
+    VkPipeline                      _graphicsPipeline;
 
-    VkCommandPool               _commandPool;
-    VkCommandBuffer             _commandBuffer;
+    VkCommandPool                   _commandPool;
 
-    VkSemaphore                 _imageAvailableSemaphore;
-    VkSemaphore                 _renderFinishedSemaphore;
-    VkFence                     _inFlightFence;
+    // Chaque frame doit avoir son propre command buffer, ses propres sémaphores et sa propre fence (barrière).
+    // std::vector permet de créer le nombre d'objets nécessaires pour chaque frame.
+    // Voir `MAX_FRAMES_IN_FLIGHT` dans `./_config.hpp` pour connaître le nombre maximum d'images pouvant être gérées simultanément.
+    std::vector<VkCommandBuffer>    _commandBuffers;
+
+    std::vector<VkSemaphore>        _imageAvailableSemaphores;
+    std::vector<VkSemaphore>        _renderFinishedSemaphores;
+    std::vector<VkFence>            _inFlightFences;
+
+    // Pour utiliser les bons objets à chaque image, nous devons suivre l'image courante.
+    uint32_t                        _currentFrame = 0;
 
     // ⤹ run.cpp
-        void                    initWindow();
-        void                    initVulkan();
-        void                    mainLoop();
-        void                    drawFrame();
-        void                    cleanup();
+        void                        initWindow();
+        void                        initVulkan();
+        void                        mainLoop();
+        void                        drawFrame();
+        void                        cleanup();
 
     // ⤹ initVulkanSource/
-        void                    createVulkanInstance ();
-        bool                    checkValidationLayerSupport();
-        vector<const char *>    getRequiredGlfwExtensions();
+        void                        createVulkanInstance ();
+        bool                        checkValidationLayerSupport();
+        vector<const char *>        getRequiredGlfwExtensions();
 
-        void                    setupDebugMessenger();
-        void                    populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
-        static VKAPI_CALLBACK   debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
-        static VkResult         CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
-        static void             DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
+        void                        setupDebugMessenger();
+        void                        populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+        static VKAPI_CALLBACK       debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+        static VkResult             CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
+        static void                 DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
 
-        void                    createSurface();
+        void                        createSurface();
 
-        void                    pickPhysicalDevice();
+        void                        pickPhysicalDevice();
 
-        void                    createLogicalDevice();
-        vector<const char *>    getRequiredLogicalDeviceExtensions();
+        void                        createLogicalDevice();
+        vector<const char *>        getRequiredLogicalDeviceExtensions();
 
-        void                    createSwapChain();
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-        VkSurfaceFormatKHR      chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR> &availableFormats);
-        VkPresentModeKHR        chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
-        VkExtent2D              chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+        void                        createSwapChain();
+        SwapChainSupportDetails     querySwapChainSupport(VkPhysicalDevice device);
+        VkSurfaceFormatKHR          chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR> &availableFormats);
+        VkPresentModeKHR            chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+        VkExtent2D                  chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
-        void                    createImageViews();
+        void                        createImageViews();
 
-        void                    createRenderPass();
+        void                        createRenderPass();
 
-        void                    createGraphicsPipeline();
-        static vector<char>     readFile(const string &filename);
-        VkShaderModule          createShaderModule(const vector<char> &code);
+        void                        createGraphicsPipeline();
+        static vector<char>         readFile(const string &filename);
+        VkShaderModule              createShaderModule(const vector<char> &code);
 
-        void                    createFramebuffers();
+        void                        createFramebuffers();
 
-        void                    setupCommandResources();
-        void                    createCommandPool();
-        void                    createCommandBuffer();
+        void                        setupCommandResources();
+        void                        createCommandPool();
+        void                        createCommandBuffers();
 
-        void                    createSyncObjects();
+        void                        createSyncObjects();
 
     // ⤹ initVulkanSource/utils.cpp
-        bool                    isDeviceSuitable(VkPhysicalDevice device);
-        QueueFamilyIndices      findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
-        bool                    checkPhysicalDeviceExtensionSupport(VkPhysicalDevice device);
+        bool                        isDeviceSuitable(VkPhysicalDevice device);
+        QueueFamilyIndices          findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags);
+        bool                        checkPhysicalDeviceExtensionSupport(VkPhysicalDevice device);
 
-        void                    recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+        void                        recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
-        void                    printValidationLayerSupport();
-        void                    printAvailableVulkanExtension();
-        void                    printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
-        void                    printAvailablePhysicalDevices();
-        void                    printQueueFamilies(VkPhysicalDevice device);
-        void                    printQueueFamilyIndices(const QueueFamilyIndices &indices);
-        void                    printSupportedPhysicalDeviceExtensions();
+        void                        printValidationLayerSupport();
+        void                        printAvailableVulkanExtension();
+        void                        printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
+        void                        printAvailablePhysicalDevices();
+        void                        printQueueFamilies(VkPhysicalDevice device);
+        void                        printQueueFamilyIndices(const QueueFamilyIndices &indices);
+        void                        printSupportedPhysicalDeviceExtensions();
 
 };
