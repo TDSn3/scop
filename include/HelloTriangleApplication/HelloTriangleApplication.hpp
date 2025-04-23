@@ -44,11 +44,14 @@ private:
     std::vector<VkSemaphore>        _renderFinishedSemaphores;
     std::vector<VkFence>            _inFlightFences;
 
+    bool                            _framebufferResized = false;
+
     // Pour utiliser les bons objets à chaque image, nous devons suivre l'image courante.
     uint32_t                        _currentFrame = 0;
 
     // ⤹ run.cpp
         void                        initWindow();
+        static void                 framebufferResizeCallback(GLFWwindow* window, int width, int height);
         void                        initVulkan();
         void                        mainLoop();
         void                        drawFrame();
@@ -71,6 +74,9 @@ private:
 
         void                        createLogicalDevice();
         vector<const char *>        getRequiredLogicalDeviceExtensions();
+
+        void                        recreateSwapChain();
+        void                        cleanupSwapChain();
 
         void                        createSwapChain();
         SwapChainSupportDetails     querySwapChainSupport(VkPhysicalDevice device);
