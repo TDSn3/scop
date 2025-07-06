@@ -28,12 +28,22 @@ LDFLAGS		= -L $(VULKAN_SDK)/lib				\
 			  -L ./library/glfw-3.4/build/src	\
 			  -Wl,-rpath,$(VULKAN_SDK)/lib
 
-LDLIBS		= -l vulkan					\
-			  -l glfw3					\
-			  -framework Cocoa			\
-			  -framework IOKit			\
-			  -framework CoreVideo		\
-			  -framework CoreFoundation
+ifeq ($(shell uname), Darwin)				# macOS
+	LDLIBS		= -l vulkan					\
+				  -l glfw3					\
+				  -framework Cocoa			\
+				  -framework IOKit			\
+				  -framework CoreVideo		\
+				  -framework CoreFoundation
+else										# Linux and others
+	LDLIBS		= -l vulkan					\
+				  -l glfw					\
+				  -l X11					\
+				  -l pthread				\
+				  -l dl						\
+				  -l Xrandr					\
+				  -l Xi
+endif
 
 HEADERS		= $(shell find $(INC_DIR) -type f -name '*.hpp')
 
