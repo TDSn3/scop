@@ -2,8 +2,10 @@
 # define HEADER_HPP
 
 # include <algorithm>
+# include <array>
 # include <cstdlib>
 # include <cstring>
+# include <glm/glm.hpp>
 # include <fstream>
 # include <functional>
 # include <iostream>
