@@ -28,8 +28,12 @@ void HelloTriangleApplication::createLogicalDevice() {
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
+    if (enableValidationLayers) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+    } else {
+        createInfo.enabledLayerCount = 0;
+    }
 
     printSupportedPhysicalDeviceExtensions();
 

@@ -158,7 +158,8 @@ void HelloTriangleApplication::cleanup() {
 
     vkDestroyDevice(_device, nullptr);
 
-    DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
+    if (enableValidationLayers)
+        DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
 
     vkDestroySurfaceKHR(_instance, _surface, nullptr);
     vkDestroyInstance(_instance, nullptr);

@@ -1,8 +1,9 @@
 #include <header.hpp>
 
 void HelloTriangleApplication::setupDebugMessenger() {
+    if (!enableValidationLayers) return ;
+    
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
-
     populateDebugMessengerCreateInfo(createInfo);
 
     if (CreateDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS)

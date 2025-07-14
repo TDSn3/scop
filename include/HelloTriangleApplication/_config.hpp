@@ -2,6 +2,12 @@
 
 #define VKAPI_CALLBACK VKAPI_ATTR VkBool32 VKAPI_CALL
 
+#ifdef NDEBUG
+ const bool enableValidationLayers = false;
+#else
+ const bool enableValidationLayers = true;
+#endif
+
 using namespace std;
 
 const int WIDTH = 800;

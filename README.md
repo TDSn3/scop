@@ -14,6 +14,10 @@ cd ../../..
 
 # Utils
 
+### Validation layer
+
+To activate the validation layer, remove `-DNDEBUG` from `CFLAGS` in the **Makefile**.
+
 ### Resources
 
 - A Comparison of Modern Graphics APIs : https://alain.xyz/blog/comparison-of-modern-graphics-apis

@@ -3,7 +3,7 @@
 void HelloTriangleApplication::createVulkanInstance () {
     printValidationLayerSupport();
     
-    if (!checkValidationLayerSupport())
+    if (enableValidationLayers && !checkValidationLayerSupport())
         throw runtime_error("validation layers requested, but not available!");
 
     VkInstanceCreateInfo createInfo{};
@@ -12,8 +12,12 @@ void HelloTriangleApplication::createVulkanInstance () {
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 
-    populateDebugMessengerCreateInfo(debugCreateInfo);
-    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *) &debugCreateInfo;
+    if (enableValidationLayers) {
+        populateDebugMessengerCreateInfo(debugCreateInfo);
+        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *) &debugCreateInfo;
+    } else {
+        createInfo.pNext = nullptr;
+    }
 
     #ifdef __APPLE__
         createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
@@ -30,8 +34,12 @@ void HelloTriangleApplication::createVulkanInstance () {
 
     createInfo.pApplicationInfo = &appInfo;
 
-    createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-    createInfo.ppEnabledLayerNames = validationLayers.data();
+    if (enableValidationLayers) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+    } else {
+        createInfo.enabledLayerCount = 0;
+    }
 
     vector<const char *> glfwExtensions = getRequiredGlfwExtensions();
 
@@ -83,7 +91,8 @@ vector<const char *> HelloTriangleApplication::getRequiredGlfwExtensions() {
         glfwExtensionsExtend.push_back("VK_KHR_get_physical_device_properties2");
     #endif
 
-    glfwExtensionsExtend.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    if (enableValidationLayers)
+        glfwExtensionsExtend.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
     return glfwExtensionsExtend;
 }
