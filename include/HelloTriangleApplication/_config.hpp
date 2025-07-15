@@ -53,12 +53,31 @@ struct Vertex {
 
     static array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
         array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+
+        // Attribut 1: Position (vec2)
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT; // vec2
         attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+        // Attribut 2: Couleur (vec3)
+        attributeDescriptions[1].binding = 0;
+        attributeDescriptions[1].location = 1;
+        attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT; // vec3
+        attributeDescriptions[1].offset = offsetof(Vertex, color);
 
         return attributeDescriptions;
     }
 };
 
+const vector<Vertex> vertices = {
+    {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+};
+
+// const vector<Vertex> vertices = {
+//     {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+//     {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+//     {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+// };

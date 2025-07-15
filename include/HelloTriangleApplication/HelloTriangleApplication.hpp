@@ -35,6 +35,9 @@ private:
 
     VkCommandPool                   _commandPool;
 
+    VkBuffer                        _vertexBuffer;
+    VkDeviceMemory                  _vertexBufferMemory;
+
     // Chaque frame doit avoir son propre command buffer, ses propres sémaphores et sa propre fence (barrière).
     // std::vector permet de créer le nombre d'objets nécessaires pour chaque frame.
     // Voir `MAX_FRAMES_IN_FLIGHT` dans `./_config.hpp` pour connaître le nombre maximum d'images pouvant être gérées simultanément.
@@ -99,6 +102,9 @@ private:
         void                        createCommandBuffers();
 
         void                        createSyncObjects();
+
+        void                        createVertexBuffer();
+        uint32_t                    findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     // ⤹ initVulkanSource/utils.cpp
         bool                        isDeviceSuitable(VkPhysicalDevice device);

@@ -9,7 +9,7 @@ OBJ_DIR		= object/
 
 CC			= c++
 
-CFLAGS		= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17 -DNDEBUG
+CFLAGS		= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17
 
 # **************************************************************************** #
 #                                                                              #

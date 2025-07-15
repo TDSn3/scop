@@ -36,6 +36,7 @@ void HelloTriangleApplication::initVulkan() {
     createRenderPass();
     createGraphicsPipeline();
     createFramebuffers();
+    createVertexBuffer();
     setupCommandResources();
     createSyncObjects();
 }
@@ -142,6 +143,9 @@ void HelloTriangleApplication::drawFrame() {
 
 void HelloTriangleApplication::cleanup() {
     cleanupSwapChain();
+
+    vkDestroyBuffer(_device, _vertexBuffer, nullptr);
+    vkFreeMemory(_device, _vertexBufferMemory, nullptr);
 
     vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
