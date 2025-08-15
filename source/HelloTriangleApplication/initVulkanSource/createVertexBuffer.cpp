@@ -1,34 +1,39 @@
 #include <header.hpp>
 
 void HelloTriangleApplication::createVertexBuffer() {
-    VkBufferCreateInfo bufferInfo{};
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
 
-    if (vkCreateBuffer(_device, &bufferInfo, nullptr, &_vertexBuffer) != VK_SUCCESS)
-        throw runtime_error("failed to create vertex buffer!");
+    // stagingBuffer : buffer alloué sur le CPU pour y copier les vertices
+    createBuffer(
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingBuffer,
+        stagingBufferMemory
+    );
 
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(_device, _vertexBuffer, &memRequirements);
+    void* data;
 
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    vkMapMemory(_device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertices.data(), (size_t) bufferSize);
+    vkUnmapMemory(_device, stagingBufferMemory);
 
-    if (vkAllocateMemory(_device, &allocInfo, nullptr, &_vertexBufferMemory) != VK_SUCCESS)
-        throw runtime_error("failed to allocate vertex buffer memory!");
+    // vertexBuffer : "vrai" buffer alloué sur le GPU (memoire plus rapide sur le GPU que sur le CPU)
+    createBuffer(
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+        _vertexBuffer, 
+        _vertexBufferMemory);
 
-    vkBindBufferMemory(_device, _vertexBuffer, _vertexBufferMemory, 0);
+    copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
 
-    void *data;
-
-    vkMapMemory(_device, _vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
-    vkUnmapMemory(_device, _vertexBufferMemory);
+    // Destruction du stagingBuffer apres la copie des vertices sur le vertexBuffer
+    vkDestroyBuffer(_device, stagingBuffer, nullptr);
+    vkFreeMemory(_device, stagingBufferMemory, nullptr);
 }
 
 // Chaque carte graphique propose plusieurs types de mémoire aux propriétés et performances différentes.

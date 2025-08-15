@@ -38,5 +38,5 @@ void HelloTriangleApplication::createRenderPass() {
     renderPassInfo.pDependencies = &dependency;
 
     if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
-        throw std::runtime_error("failed to create render pass!");
+        throw runtime_error("failed to create render pass!");
 }

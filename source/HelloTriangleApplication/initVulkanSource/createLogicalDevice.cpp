@@ -50,7 +50,7 @@ void HelloTriangleApplication::createLogicalDevice() {
 
     if (result != VK_SUCCESS)
         throw runtime_error("failed to create logical device!");
-    
+
     vkGetDeviceQueue(_device, indices.graphicsFamily.value(), 0, &_graphicsQueue);
     vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
 
