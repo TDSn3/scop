@@ -1,7 +1,7 @@
 #include <header.hpp>
 
 bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
-    QueueFamilyIndices indices = findQueueFamilies(device, VK_QUEUE_GRAPHICS_BIT);
+    QueueFamilyIndices QFindices = findQueueFamilies(device, VK_QUEUE_GRAPHICS_BIT);
     bool extensionsSupported = checkPhysicalDeviceExtensionSupport(device);
     bool swapChainAdequate = false;
 
@@ -10,11 +10,11 @@ bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
-    return indices.isComplete() && extensionsSupported && swapChainAdequate;
+    return QFindices.isComplete() && extensionsSupported && swapChainAdequate;
 }
 
 QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device, VkQueueFlagBits flags) {
-    QueueFamilyIndices indices;
+    QueueFamilyIndices QFindices;
 
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -26,19 +26,19 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice 
 
     for (const auto &queueFamiliesIterator : queueFamilies) {
         if (queueFamiliesIterator.queueFlags & flags)
-            indices.graphicsFamily = i;
+            QFindices.graphicsFamily = i;
 
         VkBool32 presentSupport = false;
 
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface, &presentSupport);
 
         if (presentSupport)
-            indices.presentFamily = i;
+            QFindices.presentFamily = i;
 
         i++;
     }
 
-    return indices;
+    return QFindices;
 }
 
 bool HelloTriangleApplication::checkPhysicalDeviceExtensionSupport(VkPhysicalDevice device) {
@@ -96,9 +96,11 @@ void HelloTriangleApplication::recordCommandBuffer(VkCommandBuffer commandBuffer
 
         VkBuffer vertexBuffers[] = {_vertexBuffer};
         VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
     vkCmdEndRenderPass(commandBuffer);
 
@@ -238,15 +240,15 @@ void HelloTriangleApplication::printQueueFamilies(VkPhysicalDevice device) {
     }    
 }
 
-void HelloTriangleApplication::printQueueFamilyIndices(const QueueFamilyIndices &indices) {
+void HelloTriangleApplication::printQueueFamilyIndices(const QueueFamilyIndices &QFindices) {
     cout << "queue family indices:\n";
     
     cout << "\tgraphics queue index: ";
-    if (indices.graphicsFamily.has_value()) cout << indices.graphicsFamily.value() << "\n";
+    if (QFindices.graphicsFamily.has_value()) cout << QFindices.graphicsFamily.value() << "\n";
     else cout << "not found\n";
     
     cout << "\tpresent queue index: ";
-    if (indices.presentFamily.has_value()) cout << indices.presentFamily.value() << "\n";
+    if (QFindices.presentFamily.has_value()) cout << QFindices.presentFamily.value() << "\n";
     else cout << "\tnot found\n";
 
     cout << "\n";

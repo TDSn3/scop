@@ -37,15 +37,17 @@ private:
 
     VkBuffer                        _vertexBuffer;
     VkDeviceMemory                  _vertexBufferMemory;
+    VkBuffer                        _indexBuffer;
+    VkDeviceMemory                  _indexBufferMemory;    
 
     // Chaque frame doit avoir son propre command buffer, ses propres sémaphores et sa propre fence (barrière).
-    // std::vector permet de créer le nombre d'objets nécessaires pour chaque frame.
+    // vector permet de créer le nombre d'objets nécessaires pour chaque frame.
     // Voir `MAX_FRAMES_IN_FLIGHT` dans `./_config.hpp` pour connaître le nombre maximum d'images pouvant être gérées simultanément.
-    std::vector<VkCommandBuffer>    _commandBuffers;
+    vector<VkCommandBuffer>         _commandBuffers;
 
-    std::vector<VkSemaphore>        _imageAvailableSemaphores;
-    std::vector<VkSemaphore>        _renderFinishedSemaphores;
-    std::vector<VkFence>            _inFlightFences;
+    vector<VkSemaphore>             _imageAvailableSemaphores;
+    vector<VkSemaphore>             _renderFinishedSemaphores;
+    vector<VkFence>                 _inFlightFences;
 
     bool                            _framebufferResized = false;
 
@@ -84,7 +86,7 @@ private:
         void                        createSwapChain();
         SwapChainSupportDetails     querySwapChainSupport(VkPhysicalDevice device);
         VkSurfaceFormatKHR          chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR> &availableFormats);
-        VkPresentModeKHR            chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+        VkPresentModeKHR            chooseSwapPresentMode(const vector<VkPresentModeKHR> &availablePresentModes);
         VkExtent2D                  chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
         void                        createImageViews();
@@ -104,6 +106,7 @@ private:
         void                        createSyncObjects();
 
         void                        createVertexBuffer();
+        void                        createIndexBuffer();
         void                        createBuffer(VkDeviceSize size,VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
         uint32_t                    findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -121,7 +124,7 @@ private:
         void                        printAvailableGlfwExtension(vector<const char *> &glfwExtensions);
         void                        printAvailablePhysicalDevices();
         void                        printQueueFamilies(VkPhysicalDevice device);
-        void                        printQueueFamilyIndices(const QueueFamilyIndices &indices);
+        void                        printQueueFamilyIndices(const QueueFamilyIndices &QFindices);
         void                        printSupportedPhysicalDeviceExtensions();
 
 };

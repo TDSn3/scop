@@ -7,9 +7,35 @@ INC_DIR		= include/
 SRC_DIR		= source/
 OBJ_DIR		= object/
 
-CC			= c++
+CXX			= c++
 
-CFLAGS		= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17
+CXXFLAGS	= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17 -DNDEBUG
+
+# **************************************************************************** #
+#                                                                              #
+#   Dépendance GLFW (téléchargement + build auto)                              #
+#                                                                              #
+# **************************************************************************** #
+
+# GLFW_VERSION	> ./.env
+
+GLFW_URL		= https://github.com/glfw/glfw/archive/refs/tags/$(GLFW_VERSION).tar.gz
+GLFW_TARBALL	= library/glfw-$(GLFW_VERSION).tar.gz
+GLFW_SRC_DIR	= library/glfw-$(GLFW_VERSION)
+GLFW_BUILD_DIR	= $(GLFW_SRC_DIR)/build
+GLFW_LIB		= $(GLFW_BUILD_DIR)/src/libglfw3.a
+
+# **************************************************************************** #
+#                                                                              #
+#   GLM                                                                        #
+#                                                                              #
+# **************************************************************************** #
+
+# GLM_VERSION	> 1.0.1
+
+GLM_URL			= https://github.com/g-truc/glm/archive/refs/tags/$(GLM_VERSION).tar.gz
+GLM_SRC_DIR		= library/glm-$(GLM_VERSION)
+GLM_DIR			= library/glm-master
 
 # **************************************************************************** #
 #                                                                              #
@@ -19,38 +45,61 @@ CFLAGS		= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17
 #                                                                              #
 # **************************************************************************** #
 
-I_HEADERS	= -I $(INC_DIR)					\
-			  -I $(VULKAN_SDK)/include		\
-			  -I ./library/glfw-3.4/include	\
-			  -I ./library/glm-master
+# VULKAN_SDK	> ./.env
 
-LDFLAGS		= -L $(VULKAN_SDK)/lib				\
-			  -L ./library/glfw-3.4/build/src	\
-			  -Wl,-rpath,$(VULKAN_SDK)/lib
+I_HEADERS		= -I $(INC_DIR)					\
+				  -I $(VULKAN_SDK)/include		\
+				  -I $(GLFW_SRC_DIR)/include	\
+				  -I $(GLM_DIR)
+
+LDFLAGS			= -L $(VULKAN_SDK)/lib			\
+				  -L $(GLFW_BUILD_DIR)/src		\
+				  -Wl,-rpath,$(VULKAN_SDK)/lib
+
+# **************************************************************************** #
+#                                                                              #
+#   Addapation à l'OS                                                          #
+#                                                                              #
+# **************************************************************************** #
+
+UNAME							= $(shell uname)
 
 ifeq ($(shell uname), Darwin)				# macOS
-	LDLIBS		= -l vulkan					\
-				  -l glfw3					\
-				  -framework Cocoa			\
-				  -framework IOKit			\
-				  -framework CoreVideo		\
-				  -framework CoreFoundation
+#   MACOSX_DEPLOYMENT_TARGET	> ./.env
+
+	ARCH						= $(shell uname -m)
+
+	CFLAGS					   += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET) -arch $(ARCH)
+	LDFLAGS					   += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET) -arch $(ARCH)
+
+	GLFW_CMAKE_FLAGS			= -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release		\
+	                			  -DCMAKE_OSX_DEPLOYMENT_TARGET=$(MACOSX_DEPLOYMENT_TARGET)	\
+	                			  -DCMAKE_OSX_ARCHITECTURES=$(ARCH)
+
+	LDLIBS						= -l vulkan					\
+								  -l glfw3					\
+								  -framework Cocoa			\
+								  -framework IOKit			\
+								  -framework CoreVideo		\
+								  -framework CoreFoundation
 else										# Linux and others
-	LDLIBS		= -l vulkan					\
-				  -l glfw					\
-				  -l X11					\
-				  -l pthread				\
-				  -l dl						\
-				  -l Xrandr					\
-				  -l Xi
+	GLFW_CMAKE_FLAGS			= -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
+	
+	LDLIBS						= -l vulkan					\
+								  -l glfw					\
+								  -l X11					\
+								  -l pthread				\
+								  -l dl						\
+								  -l Xrandr					\
+								  -l Xi
 endif
 
 HEADERS		= $(shell find $(INC_DIR) -type f -name '*.hpp')
 
-NAME_FILE   = $(shell find $(SRC_DIR) -type f -name '*.cpp')
+NAME_FILE	= $(shell find $(SRC_DIR) -type f -name '*.cpp')
 
-OBJ         = $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.o, $(NAME_FILE))
-DEPENDS     = $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.d, $(NAME_FILE))
+OBJ			= $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.o, $(NAME_FILE))
+DEPENDS		= $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.d, $(NAME_FILE))
 
 # **************************************************************************** #
 #                                                                              #
@@ -68,20 +117,77 @@ DEPENDS     = $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.d, $(NAME_FILE))
 #                                                                              #
 # *****************************vvvvvvvvvvvvvvvvvvv**************************** #
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile
+$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile | $(GLM_DIR)
 	@ mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(I_HEADERS) -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(I_HEADERS) -MMD -MP -c $< -o $@
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
-	$(CC) $(OBJ) $(I_HEADERS) $(LDFLAGS) $(LDLIBS) -o $(NAME)
+$(NAME): $(GLFW_LIB) $(OBJ)
+	$(CXX) $(OBJ) $(I_HEADERS) $(LDFLAGS) $(LDLIBS) -o $(NAME)
+
+# **************************************************************************** #
+#                                                                              #
+#   Téléchargement + extraction GLFW                                           #
+#                                                                              #
+# **************************************************************************** #
+
+$(GLFW_TARBALL):
+	@ mkdir -p library
+	@ echo ">> Téléchargement GLFW $(GLFW_VERSION)"
+	@ if command -v curl >/dev/null 2>&1; then		\
+		curl -L "$(GLFW_URL)" -o "$(GLFW_TARBALL)";	\
+	else											\
+		wget -O "$(GLFW_TARBALL)" "$(GLFW_URL)";	\
+	fi
+
+$(GLFW_SRC_DIR): $(GLFW_TARBALL)
+	@ echo ">> Extraction GLFW -> $(GLFW_SRC_DIR)"
+	@ tar -xzf "$(GLFW_TARBALL)" -C library
+	@ [ -d "$(GLFW_SRC_DIR)" ] || (echo "Extraction GLFW échouée"; exit 1)
+
+# **************************************************************************** #
+#                                                                              #
+#   Build GLFW                                                                 #
+#                                                                              #
+# **************************************************************************** #
+
+$(GLFW_LIB): $(GLFW_SRC_DIR)
+	@ echo ">> Build GLFW dans $(GLFW_BUILD_DIR)"
+	@ env -u CC -u CFLAGS -u CXX -u CXXFLAGS \
+	  cmake -S "$(GLFW_SRC_DIR)" -B "$(GLFW_BUILD_DIR)" $(GLFW_CMAKE_FLAGS)
+	@ env -u CC -u CFLAGS -u CXX -u CXXFLAGS \
+	  cmake --build "$(GLFW_BUILD_DIR)" --config Release -- -j
+	@ $(MAKE) check-glfw
+
+# **************************************************************************** #
+#                                                                              #
+#   Téléchargement + extraction GLFM                                           #
+#                                                                              #
+# **************************************************************************** #
+
+$(GLM_DIR):
+	@mkdir -p library
+	@if [ ! -d "$(GLM_DIR)" ]; then \
+		echo ">> Fetch + extract GLM $(GLM_VERSION)"; \
+		if command -v curl >/dev/null 2>&1; then \
+			curl -L "$(GLM_URL)" | tar -xz -C library; \
+		else \
+			wget -qO- "$(GLM_URL)" | tar -xz -C library; \
+		fi; \
+		mv "$(GLM_SRC_DIR)" "$(GLM_DIR)"; \
+	fi
+
+# **************************************************************************** #
 
 clean:
 	rm -rf $(OBJ_DIR)
 
 fclean: clean
 	rm -f $(NAME)
+
+libclean:
+	rm -rf ./library
 
 re: fclean all
 
@@ -105,8 +211,24 @@ valgrind_helgrind: $(OBJ)
 leaks: $(NAME)
 	@leaks --atExit -- ./$(NAME)
 
+check-glfw:
+ifeq ($(UNAME), Darwin)
+	@ obj=$$(find "$(GLFW_BUILD_DIR)/src/CMakeFiles/glfw.dir" -name '*.o' | head -n 1);		\
+	if [ -z "$$obj" ]; then echo "Aucun objet GLFW pour vérif."; exit 1; fi;				\
+	echo ">> Vérif macOS : minOS & arch sur $$obj";											\
+	minos=$$(otool -l "$$obj" | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $$2; exit}');	\
+	echo "   minOS détecté: $$minos — attendu: $(MACOSX_DEPLOYMENT_TARGET)";				\
+	test "$$minos" = "$(MACOSX_DEPLOYMENT_TARGET)" || (echo "   ERREUR: mismatch de cible macOS"; exit 1)
+else
+	@obj=$$(find "$(GLFW_BUILD_DIR)/src/CMakeFiles/glfw.dir" -name '*.o' | head -n 1);	\
+	if [ -z "$$obj" ]; then echo "Aucun objet GLFW pour vérif."; exit 1; fi;			\
+	echo ">> Vérif Linux : arch objet vs arch système";									\
+	echo -n "   Objet: "; file "$$obj" | sed 's/.*: //';								\
+	echo "   Système: $(shell uname -m)"
+endif
+
 # **************************************************************************** #
 
-.PHONY: all clean fclean re valgrind_memcheck_fd valgrind_memcheck valgrind_helgrind leaks
+.PHONY: all clean fclean libclean re valgrind_memcheck_fd valgrind_memcheck valgrind_helgrind leaks check-glfw
 
 -include $(DEPENDS)

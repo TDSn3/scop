@@ -7,9 +7,9 @@ void HelloTriangleApplication::createLogicalDevice() {
 
     vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-    QueueFamilyIndices indices = findQueueFamilies(_physicalDevice, VK_QUEUE_GRAPHICS_BIT);
-    printQueueFamilyIndices(indices);
-    set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+    QueueFamilyIndices QFindices = findQueueFamilies(_physicalDevice, VK_QUEUE_GRAPHICS_BIT);
+    printQueueFamilyIndices(QFindices);
+    set<uint32_t> uniqueQueueFamilies = { QFindices.graphicsFamily.value(), QFindices.presentFamily.value() };
 
     float queuePriority = 1.0f;
 
@@ -51,8 +51,8 @@ void HelloTriangleApplication::createLogicalDevice() {
     if (result != VK_SUCCESS)
         throw runtime_error("failed to create logical device!");
 
-    vkGetDeviceQueue(_device, indices.graphicsFamily.value(), 0, &_graphicsQueue);
-    vkGetDeviceQueue(_device, indices.presentFamily.value(), 0, &_presentQueue);
+    vkGetDeviceQueue(_device, QFindices.graphicsFamily.value(), 0, &_graphicsQueue);
+    vkGetDeviceQueue(_device, QFindices.presentFamily.value(), 0, &_presentQueue);
 
     cout << COLOR_GREEN << "logical device created" << COLOR_RESET << "\n\n";
 }
