@@ -41,6 +41,8 @@ void HelloTriangleApplication::initVulkan() {
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
+    createDescriptorPool();
+    createDescriptorSets();
     createCommandBuffers();
     createSyncObjects();
 }
@@ -161,6 +163,8 @@ void HelloTriangleApplication::cleanup() {
         vkDestroyBuffer(_device, _uniformBuffers[i], nullptr);
         vkFreeMemory(_device, _uniformBuffersMemory[i], nullptr);
     }
+
+    vkDestroyDescriptorPool(_device, _descriptorPool, nullptr);
 
     vkDestroyDescriptorSetLayout(_device, _descriptorSetLayout, nullptr);
 

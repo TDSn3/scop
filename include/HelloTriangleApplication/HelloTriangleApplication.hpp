@@ -45,6 +45,9 @@ private:
     vector<VkDeviceMemory>          _uniformBuffersMemory;
     vector<void *>                  _uniformBuffersMapped;
 
+    VkDescriptorPool                _descriptorPool;
+    vector<VkDescriptorSet>         _descriptorSets;
+
     // Chaque frame doit avoir son propre command buffer, ses propres sémaphores et sa propre fence (barrière).
     // vector permet de créer le nombre d'objets nécessaires pour chaque frame.
     // Voir `MAX_FRAMES_IN_FLIGHT` dans `./_config.hpp` pour connaître le nombre maximum d'images pouvant être gérées simultanément.
@@ -115,6 +118,9 @@ private:
 
         void                        createUniformBuffers();
         void                        updateUniformBuffer(uint32_t currentImage);
+
+        void                        createDescriptorPool();
+        void                        createDescriptorSets();
 
         void                        createDescriptorSetLayout();
         void                        createBuffer(VkDeviceSize size,VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
