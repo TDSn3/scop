@@ -9,7 +9,7 @@ OBJ_DIR		= object/
 
 CXX			= c++
 
-CXXFLAGS	= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17 -DNDEBUG
+CXXFLAGS	= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17 #-DNDEBUG
 
 # **************************************************************************** #
 #                                                                              #

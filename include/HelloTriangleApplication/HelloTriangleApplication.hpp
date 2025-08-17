@@ -30,6 +30,7 @@ private:
     vector<VkFramebuffer>           _swapChainFramebuffers;
 
     VkRenderPass                    _renderPass;
+    VkDescriptorSetLayout           _descriptorSetLayout;
     VkPipelineLayout                _pipelineLayout;
     VkPipeline                      _graphicsPipeline;
 
@@ -38,7 +39,11 @@ private:
     VkBuffer                        _vertexBuffer;
     VkDeviceMemory                  _vertexBufferMemory;
     VkBuffer                        _indexBuffer;
-    VkDeviceMemory                  _indexBufferMemory;    
+    VkDeviceMemory                  _indexBufferMemory;  
+
+    vector<VkBuffer>                _uniformBuffers;
+    vector<VkDeviceMemory>          _uniformBuffersMemory;
+    vector<void *>                  _uniformBuffersMapped;
 
     // Chaque frame doit avoir son propre command buffer, ses propres sémaphores et sa propre fence (barrière).
     // vector permet de créer le nombre d'objets nécessaires pour chaque frame.
@@ -107,6 +112,11 @@ private:
 
         void                        createVertexBuffer();
         void                        createIndexBuffer();
+
+        void                        createUniformBuffers();
+        void                        updateUniformBuffer(uint32_t currentImage);
+
+        void                        createDescriptorSetLayout();
         void                        createBuffer(VkDeviceSize size,VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
         uint32_t                    findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 

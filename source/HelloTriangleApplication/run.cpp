@@ -34,11 +34,13 @@ void HelloTriangleApplication::initVulkan() {
     createSwapChain();
     createImageViews();
     createRenderPass();
+    createDescriptorSetLayout();
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
     createVertexBuffer();
     createIndexBuffer();
+    createUniformBuffers();
     createCommandBuffers();
     createSyncObjects();
 }
@@ -69,7 +71,7 @@ void HelloTriangleApplication::drawFrame() {
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
         if (vkCreateSemaphore(_device, &semaphoreInfo, nullptr, &_imageAvailableSemaphores[_currentFrame]) != VK_SUCCESS)
-            throw std::runtime_error("failed to create semaphore!");
+            throw runtime_error("failed to create semaphore!");
 
         recreateSwapChain();
         _framebufferResized = false;
@@ -82,10 +84,13 @@ void HelloTriangleApplication::drawFrame() {
         // _framebufferResized = false;
         // return;
     } else if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to acquire swap chain image!");
+        throw runtime_error("failed to acquire swap chain image!");
     }
 
-    // Only reset the fence if we are submitting work Ne réinitialiser "le fence" que si nous soumettons un nouvelle objet
+    // Mise à jour des données uniformes
+    updateUniformBuffer(_currentFrame);
+
+    // Ne réinitialiser "le fence" que si nous soumettons un nouvelle objet
     vkResetFences(_device, 1, &_inFlightFences[_currentFrame]);
 
     // 3) Réinitialisation et enregistrement du command buffer
@@ -136,7 +141,7 @@ void HelloTriangleApplication::drawFrame() {
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         recreateSwapChain();
     } else if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to present swap chain image!");
+        throw runtime_error("failed to present swap chain image!");
     }
 
     // Passe à l'image suivante 
@@ -145,18 +150,25 @@ void HelloTriangleApplication::drawFrame() {
 
 void HelloTriangleApplication::cleanup() {
     cleanupSwapChain();
-
+////
     vkDestroyBuffer(_device, _indexBuffer, nullptr);
     vkFreeMemory(_device, _indexBufferMemory, nullptr);
 
     vkDestroyBuffer(_device, _vertexBuffer, nullptr);
     vkFreeMemory(_device, _vertexBufferMemory, nullptr);
 
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroyBuffer(_device, _uniformBuffers[i], nullptr);
+        vkFreeMemory(_device, _uniformBuffersMemory[i], nullptr);
+    }
+
+    vkDestroyDescriptorSetLayout(_device, _descriptorSetLayout, nullptr);
+
     vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
 
     vkDestroyRenderPass(_device, _renderPass, nullptr);
-
+////
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);
