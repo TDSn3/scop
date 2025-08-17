@@ -69,7 +69,7 @@ ifeq ($(shell uname), Darwin)				# macOS
 
 	ARCH						= $(shell uname -m)
 
-	CFLAGS					   += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET) -arch $(ARCH)
+	CXXFLAGS				   += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET) -arch $(ARCH)
 	LDFLAGS					   += -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET) -arch $(ARCH)
 
 	GLFW_CMAKE_FLAGS			= -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release		\
@@ -103,6 +103,20 @@ DEPENDS		= $(patsubst $(SRC_DIR)%.cpp, $(OBJ_DIR)%.d, $(NAME_FILE))
 
 # **************************************************************************** #
 #                                                                              #
+#   Shaders                                                                    #
+#                                                                              #
+# **************************************************************************** #
+
+SHADERS_DIR   	= shaders
+SHADERS_SCRIPT	= $(SHADERS_DIR)/compile.sh
+
+VERT_SRC		= $(SHADERS_DIR)/shader.vert
+FRAG_SRC		= $(SHADERS_DIR)/shader.frag
+VERT_SPV		= $(SHADERS_DIR)/vert.spv
+FRAG_SPV		= $(SHADERS_DIR)/frag.spv
+
+# **************************************************************************** #
+#                                                                              #
 #   $@   | Le nom de la cible												   #
 #   $<   | Le nom de la première dépendance									   #
 #   $^   | La liste des dépendances											   #
@@ -123,7 +137,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile | $(GLM_DIR)
 
 all: $(NAME)
 
-$(NAME): $(GLFW_LIB) $(OBJ)
+$(NAME): $(GLFW_LIB) $(OBJ) | $(VERT_SPV) $(FRAG_SPV)
 	$(CXX) $(OBJ) $(I_HEADERS) $(LDFLAGS) $(LDLIBS) -o $(NAME)
 
 # **************************************************************************** #
@@ -167,8 +181,8 @@ $(GLFW_LIB): $(GLFW_SRC_DIR)
 # **************************************************************************** #
 
 $(GLM_DIR):
-	@mkdir -p library
-	@if [ ! -d "$(GLM_DIR)" ]; then \
+	@ mkdir -p library
+	@ if [ ! -d "$(GLM_DIR)" ]; then \
 		echo ">> Fetch + extract GLM $(GLM_VERSION)"; \
 		if command -v curl >/dev/null 2>&1; then \
 			curl -L "$(GLM_URL)" | tar -xz -C library; \
@@ -177,6 +191,19 @@ $(GLM_DIR):
 		fi; \
 		mv "$(GLM_SRC_DIR)" "$(GLM_DIR)"; \
 	fi
+
+# **************************************************************************** #
+#                                                                              #
+#   Compilation des shaders                                                    #
+#                                                                              #
+# **************************************************************************** #
+
+$(VERT_SPV): $(VERT_SRC) $(FRAG_SRC) $(SHADERS_SCRIPT)
+	@ echo ">> Compiling shaders"
+	@ chmod +x $(SHADERS_SCRIPT) || true
+	@ cd $(SHADERS_DIR) && ./$(notdir $(SHADERS_SCRIPT))
+
+$(FRAG_SPV): $(VERT_SPV) ;
 
 # **************************************************************************** #
 
@@ -188,6 +215,11 @@ fclean: clean
 
 libclean:
 	rm -rf ./library
+
+shader: $(VERT_SPV) $(FRAG_SPV)
+
+shaderclean:
+	rm -f $(VERT_SPV) $(FRAG_SPV)
 
 re: fclean all
 
@@ -209,7 +241,7 @@ valgrind_helgrind: $(OBJ)
 # **************************************************************************** #
 
 leaks: $(NAME)
-	@leaks --atExit -- ./$(NAME)
+	@ leaks --atExit -- ./$(NAME)
 
 check-glfw:
 ifeq ($(UNAME), Darwin)
@@ -220,7 +252,7 @@ ifeq ($(UNAME), Darwin)
 	echo "   minOS détecté: $$minos — attendu: $(MACOSX_DEPLOYMENT_TARGET)";				\
 	test "$$minos" = "$(MACOSX_DEPLOYMENT_TARGET)" || (echo "   ERREUR: mismatch de cible macOS"; exit 1)
 else
-	@obj=$$(find "$(GLFW_BUILD_DIR)/src/CMakeFiles/glfw.dir" -name '*.o' | head -n 1);	\
+	@ obj=$$(find "$(GLFW_BUILD_DIR)/src/CMakeFiles/glfw.dir" -name '*.o' | head -n 1);	\
 	if [ -z "$$obj" ]; then echo "Aucun objet GLFW pour vérif."; exit 1; fi;			\
 	echo ">> Vérif Linux : arch objet vs arch système";									\
 	echo -n "   Objet: "; file "$$obj" | sed 's/.*: //';								\
@@ -229,6 +261,6 @@ endif
 
 # **************************************************************************** #
 
-.PHONY: all clean fclean libclean re valgrind_memcheck_fd valgrind_memcheck valgrind_helgrind leaks check-glfw
+.PHONY: all clean fclean libclean shader shaderclean re valgrind_memcheck_fd valgrind_memcheck valgrind_helgrind leaks check-glfw
 
 -include $(DEPENDS)
