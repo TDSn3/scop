@@ -38,6 +38,8 @@ private:
 
     VkImage                         _textureImage;
     VkDeviceMemory                  _textureImageMemory;
+    VkImageView                     _textureImageView;
+    VkSampler                       _textureSampler;
 
     VkBuffer                        _vertexBuffer;
     VkDeviceMemory                  _vertexBufferMemory;
@@ -120,6 +122,10 @@ private:
         void                        createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
         void                        transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
         void                        copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+        void                        createTextureImageView();
+        void                        createTextureSampler();
+
+        VkImageView                 createImageView(VkImage image, VkFormat format);
 
         void                        createVertexBuffer();
         void                        createIndexBuffer();
