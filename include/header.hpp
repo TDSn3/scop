@@ -5,7 +5,6 @@
 # include <array>
 # include <cstdlib>
 # include <cstring>
-# include <glm/glm.hpp>
 # include <fstream>
 # include <functional>
 # include <iostream>
@@ -24,6 +23,8 @@
 # include <glm/gtc/matrix_transform.hpp>
 
 # include <chrono>
+
+# include <stb_image.h>
 
 # include "HelloTriangleApplication/HelloTriangleApplication.hpp"
 

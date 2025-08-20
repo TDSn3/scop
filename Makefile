@@ -9,7 +9,7 @@ OBJ_DIR		= object/
 
 CXX			= c++
 
-CXXFLAGS	= -Wall -Wextra -Werror -Wshadow -Wconversion -std=c++17 #-DNDEBUG
+CXXFLAGS	= -Wall -Wextra -Werror -std=c++17 #-DNDEBUG -Wshadow -Wconversion
 
 # **************************************************************************** #
 #                                                                              #
@@ -39,6 +39,16 @@ GLM_DIR			= library/glm-master
 
 # **************************************************************************** #
 #                                                                              #
+#   stb_image.h                                                                #
+#                                                                              #
+# **************************************************************************** #
+
+STB_URL      = https://raw.githubusercontent.com/nothings/stb/master/stb_image.h
+STB_DIR      = library/stb
+STB_HEADER   = $(STB_DIR)/stb_image.h
+
+# **************************************************************************** #
+#                                                                              #
 #   -I   | Chemin du dossier où trouver un .h								   #
 #   -L   | Chemin du dossier où trouver un .a								   #
 #   -l   | Nom du .a sans le préfixe "lib"									   #
@@ -50,7 +60,8 @@ GLM_DIR			= library/glm-master
 I_HEADERS		= -I $(INC_DIR)					\
 				  -I $(VULKAN_SDK)/include		\
 				  -I $(GLFW_SRC_DIR)/include	\
-				  -I $(GLM_DIR)
+				  -I $(GLM_DIR)					\
+				  -I $(STB_DIR)
 
 LDFLAGS			= -L $(VULKAN_SDK)/lib			\
 				  -L $(GLFW_BUILD_DIR)/src		\
@@ -131,7 +142,7 @@ FRAG_SPV		= $(SHADERS_DIR)/frag.spv
 #                                                                              #
 # *****************************vvvvvvvvvvvvvvvvvvv**************************** #
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile | $(GLM_DIR)
+$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile | $(GLM_DIR) $(STB_HEADER)
 	@ mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(I_HEADERS) -MMD -MP -c $< -o $@
 
@@ -168,10 +179,8 @@ $(GLFW_SRC_DIR): $(GLFW_TARBALL)
 
 $(GLFW_LIB): $(GLFW_SRC_DIR)
 	@ echo ">> Build GLFW dans $(GLFW_BUILD_DIR)"
-	@ env -u CC -u CFLAGS -u CXX -u CXXFLAGS \
-	  cmake -S "$(GLFW_SRC_DIR)" -B "$(GLFW_BUILD_DIR)" $(GLFW_CMAKE_FLAGS)
-	@ env -u CC -u CFLAGS -u CXX -u CXXFLAGS \
-	  cmake --build "$(GLFW_BUILD_DIR)" --config Release -- -j
+	@ env -u CC -u CFLAGS -u CXX -u CXXFLAGS cmake -S "$(GLFW_SRC_DIR)" -B "$(GLFW_BUILD_DIR)" $(GLFW_CMAKE_FLAGS)
+	@ env -u CC -u CFLAGS -u CXX -u CXXFLAGS cmake --build "$(GLFW_BUILD_DIR)" --config Release -- -j
 	@ $(MAKE) check-glfw
 
 # **************************************************************************** #
@@ -182,15 +191,31 @@ $(GLFW_LIB): $(GLFW_SRC_DIR)
 
 $(GLM_DIR):
 	@ mkdir -p library
-	@ if [ ! -d "$(GLM_DIR)" ]; then \
-		echo ">> Fetch + extract GLM $(GLM_VERSION)"; \
-		if command -v curl >/dev/null 2>&1; then \
-			curl -L "$(GLM_URL)" | tar -xz -C library; \
-		else \
-			wget -qO- "$(GLM_URL)" | tar -xz -C library; \
-		fi; \
-		mv "$(GLM_SRC_DIR)" "$(GLM_DIR)"; \
+	@ if [ ! -d "$(GLM_DIR)" ]; then						\
+		echo ">> Fetch + extract GLM $(GLM_VERSION)";		\
+		if command -v curl >/dev/null 2>&1; then			\
+			curl -L "$(GLM_URL)" | tar -xz -C library;		\
+		else												\
+			wget -qO- "$(GLM_URL)" | tar -xz -C library;	\
+		fi;													\
+		mv "$(GLM_SRC_DIR)" "$(GLM_DIR)";					\
 	fi
+
+# **************************************************************************** #
+#                                                                              #
+#   Téléchargement stb_image.h                                                 #
+#                                                                              #
+# **************************************************************************** #
+
+$(STB_HEADER):
+	@ mkdir -p $(STB_DIR)
+	@ echo ">> Téléchargement stb_image.h"
+	@ if command -v curl >/dev/null 2>&1; then		\
+		curl -fsSL "$(STB_URL)" -o "$(STB_HEADER)"; \
+	else											\
+		wget -qO "$(STB_HEADER)" "$(STB_URL)";		\
+	fi
+	@ [ -s "$(STB_HEADER)" ] || (echo "Téléchargement de stb_image.h échoué"; rm -f "$(STB_HEADER)"; exit 1)
 
 # **************************************************************************** #
 #                                                                              #

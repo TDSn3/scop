@@ -38,6 +38,7 @@ void HelloTriangleApplication::initVulkan() {
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
+    createTextureImage();
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
@@ -150,14 +151,61 @@ void HelloTriangleApplication::drawFrame() {
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
+// 1
+// void HelloTriangleApplication::cleanup() {
+//     cleanupSwapChain();
+
+//     vkDestroyImage(_device, _textureImage, nullptr);
+//     vkFreeMemory(_device, _textureImageMemory, nullptr);
+// ////
+//     vkDestroyBuffer(_device, _indexBuffer, nullptr);
+//     vkFreeMemory(_device, _indexBufferMemory, nullptr);
+
+//     vkDestroyBuffer(_device, _vertexBuffer, nullptr);
+//     vkFreeMemory(_device, _vertexBufferMemory, nullptr);
+
+//     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+//         vkDestroyBuffer(_device, _uniformBuffers[i], nullptr);
+//         vkFreeMemory(_device, _uniformBuffersMemory[i], nullptr);
+//     }
+
+//     vkDestroyDescriptorPool(_device, _descriptorPool, nullptr);
+
+//     vkDestroyDescriptorSetLayout(_device, _descriptorSetLayout, nullptr);
+
+//     vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
+//     vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
+
+//     vkDestroyRenderPass(_device, _renderPass, nullptr);
+// ////
+//     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+//         vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);
+//         vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);
+//         vkDestroyFence(_device, _inFlightFences[i], nullptr);
+//     }
+
+//     vkDestroyCommandPool(_device, _commandPool, nullptr);
+
+//     vkDestroyDevice(_device, nullptr);
+
+//     if (enableValidationLayers)
+//         DestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
+
+//     vkDestroySurfaceKHR(_instance, _surface, nullptr);
+//     vkDestroyInstance(_instance, nullptr);
+
+//     glfwDestroyWindow(_window);
+
+//     glfwTerminate();
+// }
+
+// 2
 void HelloTriangleApplication::cleanup() {
     cleanupSwapChain();
-////
-    vkDestroyBuffer(_device, _indexBuffer, nullptr);
-    vkFreeMemory(_device, _indexBufferMemory, nullptr);
 
-    vkDestroyBuffer(_device, _vertexBuffer, nullptr);
-    vkFreeMemory(_device, _vertexBufferMemory, nullptr);
+    vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
+    vkDestroyRenderPass(_device, _renderPass, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroyBuffer(_device, _uniformBuffers[i], nullptr);
@@ -166,13 +214,17 @@ void HelloTriangleApplication::cleanup() {
 
     vkDestroyDescriptorPool(_device, _descriptorPool, nullptr);
 
+    vkDestroyImage(_device, _textureImage, nullptr);
+    vkFreeMemory(_device, _textureImageMemory, nullptr);
+
     vkDestroyDescriptorSetLayout(_device, _descriptorSetLayout, nullptr);
 
-    vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
+    vkDestroyBuffer(_device, _indexBuffer, nullptr);
+    vkFreeMemory(_device, _indexBufferMemory, nullptr);
 
-    vkDestroyRenderPass(_device, _renderPass, nullptr);
-////
+    vkDestroyBuffer(_device, _vertexBuffer, nullptr);
+    vkFreeMemory(_device, _vertexBufferMemory, nullptr);
+
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(_device, _renderFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(_device, _imageAvailableSemaphores[i], nullptr);
