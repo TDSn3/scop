@@ -2,6 +2,7 @@
 
 ``` shell
 make
+./scop
 ```
 
 # Utils

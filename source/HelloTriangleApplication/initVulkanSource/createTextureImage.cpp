@@ -1,8 +1,14 @@
 #include <header.hpp>
 
+#define FILE_PATH "textures/texture.jpg"
+
 void HelloTriangleApplication::createTextureImage() {
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+
+    if (!filesystem::exists(FILE_PATH))
+        throw runtime_error((COLOR_BOLD_RED "incorrect file path!" COLOR_RESET));
+
+    stbi_uc* pixels = stbi_load(FILE_PATH, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels)

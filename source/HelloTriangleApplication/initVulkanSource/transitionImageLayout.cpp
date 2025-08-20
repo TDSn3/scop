@@ -50,4 +50,5 @@ void HelloTriangleApplication::transitionImageLayout(
     );
 
     endSingleTimeCommands(commandBuffer);
+    (void) format;
 }
