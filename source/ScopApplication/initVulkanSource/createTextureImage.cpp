@@ -1,14 +1,12 @@
 #include <header.hpp>
 
-#define FILE_PATH "textures/texture.jpg"
-
 void ScopApplication::createTextureImage() {
     int texWidth, texHeight, texChannels;
 
-    if (!filesystem::exists(FILE_PATH))
+    if (!filesystem::exists(TEXTURE_PATH))
         throw runtime_error((COLOR_BOLD_RED "incorrect file path!" COLOR_RESET));
 
-    stbi_uc* pixels = stbi_load(FILE_PATH, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load(TEXTURE_PATH, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels)

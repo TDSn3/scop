@@ -322,15 +322,15 @@ endif
 
 # **************************************************************************** #
 
-opti: CXXFLAGS += -O3 -march=native -DNDEBUG
-opti: CXXFLAGS := $(filter-out -Werror,$(CXXFLAGS))
-opti: re
+release: CXXFLAGS += -O3 -march=native -DNDEBUG
+release: CXXFLAGS := $(filter-out -Werror,$(CXXFLAGS))
+release: re
 
 debug: CXXFLAGS += -g -O0
 debug: re
 
 # **************************************************************************** #
 
-.PHONY: all clean fclean libclean shader shaderclean re valgrind_memcheck_fd valgrind_memcheck valgrind_helgrind leaks check-glfw opti
+.PHONY: all clean fclean libclean shader shaderclean re valgrind_memcheck_fd valgrind_memcheck valgrind_helgrind leaks check-glfw release debug
 
 -include $(DEPENDS)

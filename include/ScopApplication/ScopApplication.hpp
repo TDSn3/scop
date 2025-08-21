@@ -45,6 +45,9 @@ private:
     VkDeviceMemory                  _depthImageMemory;
     VkImageView                     _depthImageView;
 
+    vector<Vertex> vertices;
+    vector<uint32_t> indices;
+
     VkBuffer                        _vertexBuffer;
     VkDeviceMemory                  _vertexBufferMemory;
     VkBuffer                        _indexBuffer;
@@ -132,6 +135,8 @@ private:
         void                        createDepthResources();
 
         VkImageView                 createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
+        void                        loadModel();
 
         void                        createVertexBuffer();
         void                        createIndexBuffer();
