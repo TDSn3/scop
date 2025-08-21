@@ -1,7 +1,7 @@
 #include <header.hpp>
 
 int main() {
-    HelloTriangleApplication app;
+    ScopApplication app;
 
     try {
         app.run();

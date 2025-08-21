@@ -27,7 +27,7 @@
 
 # include <stb_image.h>
 
-# include "HelloTriangleApplication/HelloTriangleApplication.hpp"
+# include "ScopApplication/ScopApplication.hpp"
 
 # include "colors.hpp"
 
