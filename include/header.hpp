@@ -26,6 +26,7 @@
 # include <chrono>
 
 # include <stb_image.h>
+# include <tiny_obj_loader.h>
 
 # include "ScopApplication/ScopApplication.hpp"
 

@@ -57,6 +57,16 @@ STB_HEADER   = $(STB_DIR)/stb_image.h
 
 # **************************************************************************** #
 #                                                                              #
+#   tiny_obj_loader.h                                                          #
+#                                                                              #
+# **************************************************************************** #
+
+TINYOBJ_URL    = https://raw.githubusercontent.com/tinyobjloader/tinyobjloader/release/tiny_obj_loader.h
+TINYOBJ_DIR    = library/tinyobj
+TINYOBJ_HEADER = $(TINYOBJ_DIR)/tiny_obj_loader.h
+
+# **************************************************************************** #
+#                                                                              #
 #   -I   | Chemin du dossier où trouver un .h								   #
 #   -L   | Chemin du dossier où trouver un .a								   #
 #   -l   | Nom du .a sans le préfixe "lib"									   #
@@ -69,7 +79,8 @@ I_HEADERS		= -I $(INC_DIR)					\
 				  -I $(VULKAN_SDK)/include		\
 				  -I $(GLFW_SRC_DIR)/include	\
 				  -I $(GLM_DIR)					\
-				  -I $(STB_DIR)
+				  -I $(STB_DIR)					\
+				  -I $(TINYOBJ_DIR)
 
 LDFLAGS			= -L $(VULKAN_SDK)/lib			\
 				  -L $(GLFW_BUILD_DIR)/src		\
@@ -150,7 +161,7 @@ FRAG_SPV		= $(SHADERS_DIR)/frag.spv
 #                                                                              #
 # *****************************vvvvvvvvvvvvvvvvvvv**************************** #
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile | $(GLM_DIR) $(STB_HEADER)
+$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp $(HEADERS) Makefile | $(GLM_DIR) $(STB_HEADER) $(TINYOBJ_HEADER)
 	@ mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(I_HEADERS) -MMD -MP -c $< -o $@
 
@@ -224,6 +235,23 @@ $(STB_HEADER):
 		wget -qO "$(STB_HEADER)" "$(STB_URL)";		\
 	fi
 	@ [ -s "$(STB_HEADER)" ] || (echo "Téléchargement de stb_image.h échoué"; rm -f "$(STB_HEADER)"; exit 1)
+
+# **************************************************************************** #
+#                                                                              #
+#   Téléchargement tiny_obj_loader.h                                           #
+#                                                                              #
+# **************************************************************************** #
+
+$(TINYOBJ_HEADER):
+	@ mkdir -p $(TINYOBJ_DIR)
+	@ echo ">> Téléchargement tiny_obj_loader.h"
+	@ if command -v curl >/dev/null 2>&1; then		\
+		curl -fsSL "$(TINYOBJ_URL)" -o "$(TINYOBJ_HEADER)"; \
+	else											\
+		wget -qO "$(TINYOBJ_HEADER)" "$(TINYOBJ_URL)";	\
+	fi
+	@ [ -s "$(TINYOBJ_HEADER)" ] || (echo "Téléchargement de tiny_obj_loader.h échoué"; rm -f "$(TINYOBJ_HEADER)"; exit 1)
+
 
 # **************************************************************************** #
 #                                                                              #
