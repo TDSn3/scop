@@ -9,7 +9,15 @@ OBJ_DIR		= object/
 
 CXX			= c++
 
-CXXFLAGS	= -Wall -Wextra -Werror -std=c++17 #-DNDEBUG -Wshadow -Wconversion
+# **************************************************************************** #
+#                                                                              #
+#   CXXFLAGS += -DNDEBUG       | Désactive les validation layers               #
+#   CXXFLAGS += -Wshadow       | Avertit si une variable masque une autre      #
+#   CXXFLAGS += -Wconversion   | Avertit sur les conversions implicites        #
+#                                                                              #
+# **************************************************************************** #
+
+CXXFLAGS	= -Wall -Wextra -Werror -Wshadow -std=c++17
 
 # **************************************************************************** #
 #                                                                              #
@@ -286,6 +294,15 @@ endif
 
 # **************************************************************************** #
 
-.PHONY: all clean fclean libclean shader shaderclean re valgrind_memcheck_fd valgrind_memcheck valgrind_helgrind leaks check-glfw
+opti: CXXFLAGS += -O3 -march=native -DNDEBUG
+opti: CXXFLAGS := $(filter-out -Werror,$(CXXFLAGS))
+opti: re
+
+debug: CXXFLAGS += -g -O0
+debug: re
+
+# **************************************************************************** #
+
+.PHONY: all clean fclean libclean shader shaderclean re valgrind_memcheck_fd valgrind_memcheck valgrind_helgrind leaks check-glfw opti
 
 -include $(DEPENDS)

@@ -9,8 +9,6 @@ void HelloTriangleApplication::recreateSwapChain() {
     int width = 0;
     int height = 0;
 
-    glfwGetFramebufferSize(_window, &width, &height);
-
     while (width == 0 || height == 0) {
         glfwGetFramebufferSize(_window, &width, &height);
         glfwWaitEvents();
@@ -22,5 +20,6 @@ void HelloTriangleApplication::recreateSwapChain() {
 
     createSwapChain();          // 3a
     createImageViews();         // 3b
+    createDepthResources();
     createFramebuffers();       // 3c
 }

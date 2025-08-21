@@ -41,6 +41,10 @@ private:
     VkImageView                     _textureImageView;
     VkSampler                       _textureSampler;
 
+    VkImage                         _depthImage;
+    VkDeviceMemory                  _depthImageMemory;
+    VkImageView                     _depthImageView;
+
     VkBuffer                        _vertexBuffer;
     VkDeviceMemory                  _vertexBufferMemory;
     VkBuffer                        _indexBuffer;
@@ -125,7 +129,9 @@ private:
         void                        createTextureImageView();
         void                        createTextureSampler();
 
-        VkImageView                 createImageView(VkImage image, VkFormat format);
+        void                        createDepthResources();
+
+        VkImageView                 createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
         void                        createVertexBuffer();
         void                        createIndexBuffer();
@@ -151,6 +157,10 @@ private:
         bool                        checkPhysicalDeviceExtensionSupport(VkPhysicalDevice device);
 
         void                        recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+        VkFormat                    findSupportedFormat(const vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        VkFormat                    findDepthFormat();
+        bool                        hasStencilComponent(VkFormat format);
 
         void                        printValidationLayerSupport();
         void                        printAvailableVulkanExtension();
