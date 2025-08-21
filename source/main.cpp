@@ -1,7 +1,7 @@
 #include <header.hpp>
 
-int main() {
-    ScopApplication app;
+int main (const int argc, const char **argv) {
+    ScopApplication app(argc, argv);
 
     try {
         app.run();

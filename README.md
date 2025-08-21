@@ -2,7 +2,14 @@
 
 ``` shell
 make
-./scop
+./scop <models/model_name.obj>
+```
+
+##### With texture
+
+``` shell
+make
+./scop <models/model_name.obj> <textures/texture_name.jpg>
 ```
 
 # Utils

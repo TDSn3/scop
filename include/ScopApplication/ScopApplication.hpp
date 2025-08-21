@@ -5,10 +5,17 @@
 class ScopApplication {
 public:
 
+    ScopApplication(const int argc, const char **argv);
+    ScopApplication(const ScopApplication &src);
+    ~ScopApplication(void);
+
     // ⤹ run.cpp
         void                        run();
 
 private:
+
+    filesystem::path                _modelPath;
+    filesystem::path                _texturePath;
 
     GLFWwindow                      *_window;
 

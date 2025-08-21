@@ -1,16 +1,30 @@
 #include <header.hpp>
 
 void ScopApplication::createTextureImage() {
-    int texWidth, texHeight, texChannels;
+    int texWidth = 1;
+    int texHeight = 1;
+    int texChannels = 4;
 
-    if (!filesystem::exists(TEXTURE_PATH))
-        throw runtime_error((COLOR_BOLD_RED "incorrect file path!" COLOR_RESET));
+    stbi_uc whitePixel[4] = {255, 255, 255, 255};
+    stbi_uc* pixels = whitePixel;
 
-    stbi_uc* pixels = stbi_load(TEXTURE_PATH, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    bool hasTexture = !_texturePath.empty();
+
+    if (hasTexture) {
+        ifstream file(_texturePath);
+
+        if (file) {
+            pixels = stbi_load(_texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            file.close();
+
+            if (!pixels)
+                throw runtime_error("failed to load texture image!");
+        } else {
+            hasTexture = false;
+        }
+    }
+
     VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-    if (!pixels)
-        throw runtime_error("failed to load texture image!");
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -28,7 +42,8 @@ void ScopApplication::createTextureImage() {
     memcpy(data, pixels, static_cast<size_t>(imageSize));
     vkUnmapMemory(_device, stagingBufferMemory);
 
-    stbi_image_free(pixels);
+    if (hasTexture)
+        stbi_image_free(pixels);
 
     createImage(
         texWidth,

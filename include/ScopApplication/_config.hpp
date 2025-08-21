@@ -13,10 +13,9 @@ using namespace std;
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
-#define TEXTURE_PATH "textures/viking_room.png"
-#define MODEL_PATH "models/viking_room.obj"
-// #define TEXTURE_PATH ""
+#define TEXTURE_PATH ""
 // #define MODEL_PATH "models/42.obj"
+#define MTL_DIR_PATH "models"
 
 const int MAX_FRAMES_IN_FLIGHT = 2; // Nombre d'images à traiter simultanément
 
