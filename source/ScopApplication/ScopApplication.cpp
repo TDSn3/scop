@@ -14,9 +14,15 @@ ScopApplication::ScopApplication(const int argc, const char **argv) {
         this->_texturePath = argv[2];
 
 #ifdef USE_GLM
-    cout << COLOR_ITALIC_BLUE<< "glm used insted of mathft.cpp" << COLOR_RESET << endl;
+    cout << COLOR_ITALIC_BLUE<< "glm used insted of mathft" << COLOR_RESET << endl;
 #else
     cout << COLOR_ITALIC_BLUE << "mathft used insted of glm" << COLOR_RESET << endl;
+#endif
+
+#ifdef USE_LOADLIB
+    cout << COLOR_ITALIC_BLUE<< "stb_image and tiny_obj_loader used insted of loaderft" << COLOR_RESET << endl;
+#else
+    cout << COLOR_ITALIC_BLUE << "loaderft used insted of stb_image and tiny_obj_loader" << COLOR_RESET << endl;
 #endif
 }
 

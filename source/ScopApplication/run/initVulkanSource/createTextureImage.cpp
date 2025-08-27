@@ -3,6 +3,9 @@
 void ScopApplication::createTextureImage() {
     int texWidth = 1;
     int texHeight = 1;
+
+#ifdef USE_LOADLIB
+
     int texChannels = 4;
 
     stbi_uc whitePixel[4] = {255, 255, 255, 255};
@@ -26,6 +29,18 @@ void ScopApplication::createTextureImage() {
 
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
+#else
+
+        std::vector<unsigned char> pixels(4, 255);
+
+    if (!_texturePath.empty())
+        if (!loadImage(_texturePath, texWidth, texHeight, pixels))
+            cerr << "Failed to load texture '" << _texturePath << "', using fallback color\n";
+
+    VkDeviceSize imageSize = static_cast<VkDeviceSize>(texWidth) * texHeight * 4;
+
+#endif
+
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 
@@ -39,11 +54,19 @@ void ScopApplication::createTextureImage() {
 
     void *data;
     vkMapMemory(_device, stagingBufferMemory, 0, imageSize, 0, &data);
-    memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(_device, stagingBufferMemory);
 
+#ifdef USE_LOADLIB
+    memcpy(data, pixels, static_cast<size_t>(imageSize));
+#else
+    memcpy(data, pixels.data(), static_cast<size_t>(imageSize));
+#endif
+
+#ifdef USE_LOADLIB
     if (hasTexture)
         stbi_image_free(pixels);
+#endif
+
+    vkUnmapMemory(_device, stagingBufferMemory);
 
     createImage(
         texWidth,

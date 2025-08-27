@@ -21,8 +21,12 @@
 
 # include <chrono>
 
-# include <stb_image.h>
-# include <tiny_obj_loader.h>
+# ifdef USE_LOADLIB
+#  include <stb_image.h>
+#  include <tiny_obj_loader.h>
+#  else
+#  include "loaderft.hpp"
+# endif
 
 # include "ScopApplication/ScopApplication.hpp"
 

@@ -1,6 +1,9 @@
 #include <header.hpp>
 
 void ScopApplication::loadModel() {
+
+#ifdef USE_LOADLIB
+
     tinyobj::attrib_t attrib;
     vector<tinyobj::shape_t> shapes;
     vector<tinyobj::material_t> materials;
@@ -84,4 +87,12 @@ void ScopApplication::loadModel() {
             indexOffset += fv;
         }
     }
+
+#else
+
+    if (!loadOBJ(_modelPath.string(), MTL_DIR_PATH, vertices, indices))
+        throw runtime_error("failed to load OBJ");
+
+#endif
+
 }

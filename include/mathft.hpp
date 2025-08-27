@@ -15,9 +15,9 @@ struct Vec3 {
     float y{0};
     float z{0};
 
-    Vec3() = default;                                           // Défaut
-    Vec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {} // 3 floats
-    explicit Vec3(float v) : x(v), y(v), z(v) {}                // 1 float
+    Vec3() = default;
+    Vec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
+    explicit Vec3(float v) : x(v), y(v), z(v) {}
 };
 
 inline Vec3 operator+(const Vec3 &a, const Vec3 &b) {

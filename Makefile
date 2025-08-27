@@ -13,6 +13,7 @@ CXX			= c++
 #                                                                              #
 #   CXXFLAGS += -DNDEBUG       | Désactive les validation layers               #
 #   CXXFLAGS += -DUSE_GLM      | Active la lib GLM                             #
+#   CXXFLAGS += -DUSE_LOADLIB  | Active la lib stb_image et tiny_obj_loader    #
 #   CXXFLAGS += -Wshadow       | Avertit si une variable masque une autre      #
 #   CXXFLAGS += -Wconversion   | Avertit sur les conversions implicites        #
 #                                                                              #
