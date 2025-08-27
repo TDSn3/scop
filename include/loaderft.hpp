@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <vulkan/vulkan.h>
 
-#include "ScopApplication/_config.hpp"
+#include "ScopApplication/ScopConfig.hpp"
 
 using namespace std;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "_config.hpp"
+#include "ScopConfig.hpp"
 
 class ScopApplication {
 public:
@@ -69,7 +69,7 @@ private:
 
     // Chaque frame doit avoir son propre command buffer, ses propres sémaphores et sa propre fence (barrière).
     // vector permet de créer le nombre d'objets nécessaires pour chaque frame.
-    // Voir `MAX_FRAMES_IN_FLIGHT` dans `./_config.hpp` pour connaître le nombre maximum d'images pouvant être gérées simultanément.
+    // Voir `MAX_FRAMES_IN_FLIGHT` dans `./ScopConfig.hpp` pour connaître le nombre maximum d'images pouvant être gérées simultanément.
     vector<VkCommandBuffer>         _commandBuffers;
 
     vector<VkSemaphore>             _imageAvailableSemaphores;
