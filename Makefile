@@ -12,6 +12,7 @@ CXX			= c++
 # **************************************************************************** #
 #                                                                              #
 #   CXXFLAGS += -DNDEBUG       | Désactive les validation layers               #
+#   CXXFLAGS += -DUSE_GLM      | Active la lib GLM                             #
 #   CXXFLAGS += -Wshadow       | Avertit si une variable masque une autre      #
 #   CXXFLAGS += -Wconversion   | Avertit sur les conversions implicites        #
 #                                                                              #

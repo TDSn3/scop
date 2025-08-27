@@ -3,9 +3,22 @@
 #define VKAPI_CALLBACK VKAPI_ATTR VkBool32 VKAPI_CALL
 
 #ifdef NDEBUG
- const bool enableValidationLayers = false;
+    const bool enableValidationLayers = false;
 #else
- const bool enableValidationLayers = true;
+    const bool enableValidationLayers = true;
+#endif
+
+#ifdef USE_GLM
+    #define GLM_FORCE_RADIANS
+    #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+    #include <glm/glm.hpp>
+    #include <glm/gtc/matrix_transform.hpp>
+
+    using Vec2 = glm::vec2;
+    using Vec3 = glm::vec3;
+    using Mat4 = glm::mat4;
+#else
+    #include "mathft.hpp"
 #endif
 
 using namespace std;
@@ -13,8 +26,6 @@ using namespace std;
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
-#define TEXTURE_PATH ""
-// #define MODEL_PATH "models/42.obj"
 #define MTL_DIR_PATH "models"
 
 const int MAX_FRAMES_IN_FLIGHT = 2; // Nombre d'images à traiter simultanément
@@ -43,9 +54,9 @@ struct SwapChainSupportDetails {
 };
 
 struct Vertex {
-    glm::vec3 pos;
-    glm::vec3 color;
-    glm::vec2 texCoord;
+    Vec3 pos;
+    Vec3 color;
+    Vec2 texCoord;
 
     static VkVertexInputBindingDescription getBindingDescription() {
         VkVertexInputBindingDescription bindingDescription{};
@@ -79,7 +90,7 @@ struct Vertex {
 };
 
 struct UniformBufferObject {
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
+    alignas(16) Mat4 model;
+    alignas(16) Mat4 view;
+    alignas(16) Mat4 proj;
 };

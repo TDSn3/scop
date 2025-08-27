@@ -1,12 +1,6 @@
 #include <header.hpp>
 
 void ScopApplication::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = _commandPool;
-    allocInfo.commandBufferCount = 1;
-
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
     // Debut de l'ecriture des commandes dans le buffer

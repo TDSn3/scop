@@ -12,6 +12,12 @@ ScopApplication::ScopApplication(const int argc, const char **argv) {
     this->_modelPath = argv[1];
     if (argc == 3)
         this->_texturePath = argv[2];
+
+#ifdef USE_GLM
+    cout << COLOR_ITALIC_BLUE<< "glm used insted of mathft.cpp" << COLOR_RESET << endl;
+#else
+    cout << COLOR_ITALIC_BLUE << "mathft used insted of glm" << COLOR_RESET << endl;
+#endif
 }
 
 /* ************************************************************************** */

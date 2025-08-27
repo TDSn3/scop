@@ -38,7 +38,8 @@ void ScopApplication::loadModel() {
         for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); ++f) {
             const int fv = shape.mesh.num_face_vertices[f];
 
-            glm::vec3 color(1.0f);
+            Vec3 color(1.0f);
+
             int matId = (f < shape.mesh.material_ids.size()) ? shape.mesh.material_ids[f] : -1;
 
             if (matId >= 0 && matId < static_cast<int>(materials.size())) {
