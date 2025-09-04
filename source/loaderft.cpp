@@ -65,8 +65,12 @@ static unordered_map<string, Material> loadMaterials(const string &path) {
     return mats;
 }
 
-bool loadOBJ(const string &objPath, const string &mtlDir,
-             vector<Vertex> &vertices, vector<uint32_t> &indices) {
+bool loadOBJ(
+    const string &objPath,
+    const string &mtlDir,
+    vector<Vertex> &vertices,
+    vector<uint32_t> &indices) {
+
     ifstream file(objPath);
     if (!file) return false;
 
@@ -79,49 +83,74 @@ bool loadOBJ(const string &objPath, const string &mtlDir,
     while (getline(file, line)) {
         istringstream iss(line);
         string tag; iss >> tag;
+
         if (tag == "v") {
-            Vec3 v; iss >> v.x >> v.y >> v.z; positions.push_back(v);
+            Vec3 v;
+            
+            iss >> v.x >> v.y >> v.z; positions.push_back(v);
         } else if (tag == "vt") {
-            Vec2 vt; iss >> vt.x >> vt.y; texcoords.push_back(vt);
+            Vec2 vt;
+            
+            iss >> vt.x >> vt.y; texcoords.push_back(vt);
         } else if (tag == "mtllib") {
-            string mtlFile; iss >> mtlFile;
+            string mtlFile;
+            
+            iss >> mtlFile;
             materials = loadMaterials(mtlDir + "/" + mtlFile);
         } else if (tag == "usemtl") {
             iss >> currentMtl;
         } else if (tag == "f") {
             vector<string> verts;
-            string vstr;
-            while (iss >> vstr) verts.push_back(vstr);
+            string vtoken;
 
-            for (const string &vtoken : verts) {
-                istringstream viss(vtoken);
+            while (iss >> vtoken) verts.push_back(vtoken);
+
+            vector<uint32_t> faceLocal; 
+            faceLocal.reserve(verts.size());
+
+            for (const string &vtok : verts) {
+                istringstream viss(vtok);
                 string vStr, tStr, nStr;
                 getline(viss, vStr, '/');
                 getline(viss, tStr, '/');
                 getline(viss, nStr, '/');
 
+                auto fetchPos = [&](int idx)->Vec3 {
+                    if (idx > 0 && static_cast<size_t>(idx) <= positions.size())
+                        return positions[idx - 1];
+                    if (idx < 0 && static_cast<size_t>(-idx) <= positions.size())
+                        return positions[positions.size() + idx];
+                    throw runtime_error("position index out of range");
+                };
+                auto fetchUV = [&](int idx)->Vec2 {
+                    if (idx > 0 && static_cast<size_t>(idx) <= texcoords.size())
+                        return { texcoords[idx - 1].x, 1.0f - texcoords[idx - 1].y };
+                    if (idx < 0 && static_cast<size_t>(-idx) <= texcoords.size())
+                        return { texcoords[texcoords.size() + idx].x,
+                                1.0f - texcoords[texcoords.size() + idx].y };
+                    return Vec2{0.0f, 0.0f};
+                };
+
                 int vi = stoi(vStr);
                 int ti = tStr.empty() ? 0 : stoi(tStr);
 
                 Vertex vert{};
-
-                if (vi > 0 && static_cast<size_t>(vi) <= positions.size())
-                    vert.pos = positions[vi - 1];
-                else if (vi < 0 && static_cast<size_t>(-vi) <= positions.size())
-                    vert.pos = positions[positions.size() + vi];
-                else
-                    continue;
-
-                if (ti > 0 && static_cast<size_t>(ti) <= texcoords.size())
-                    vert.texCoord = { texcoords[ti - 1].x, 1.0f - texcoords[ti - 1].y };
-                else
-                    vert.texCoord = { 0.0f, 0.0f };
+                vert.pos = fetchPos(vi);
+                vert.texCoord = fetchUV(ti);
 
                 auto it = materials.find(currentMtl);
                 vert.color = (it != materials.end()) ? it->second.diffuse : Vec3{1.0f,1.0f,1.0f};
 
                 vertices.push_back(vert);
-                indices.push_back(static_cast<uint32_t>(indices.size()));
+                faceLocal.push_back(static_cast<uint32_t>(vertices.size() - 1));
+            }
+
+            if (faceLocal.size() >= 3) {
+                for (size_t k = 1; k + 1 < faceLocal.size(); ++k) {
+                    indices.push_back(faceLocal[0]);
+                    indices.push_back(faceLocal[k]);
+                    indices.push_back(faceLocal[k + 1]);
+                }
             }
         }
     }

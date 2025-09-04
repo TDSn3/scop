@@ -51,10 +51,10 @@ inline Vec3 normalize(const Vec3 &v) {
 }
 
 struct Mat4 {
-    array<float, 16>    data{};
+    array<float, 16> data{};
 
-    float* operator[](size_t column) { return &data[4 * column]; }
-    const float* operator[](size_t column) const { return &data[4 * column]; }
+    float *operator[](size_t column) { return &data[4 * column]; }
+    const float *operator[](size_t column) const { return &data[4 * column]; }
 };
 
 inline Mat4 identity() {

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <optional>
+#include <array>
+
 #define VKAPI_CALLBACK VKAPI_ATTR VkBool32 VKAPI_CALL
 
 #ifdef NDEBUG
